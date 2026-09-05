@@ -13,6 +13,9 @@ public record UsuarioResponseLoginDTO(
 ) {
 
     public static UsuarioResponseLoginDTO fromEntity(Usuario usuario){
-        return new UsuarioResponseLoginDTO(usuario.getId(), usuario.getEmail());
+        return new UsuarioResponseLoginDTO(
+            usuario.getId(),
+            usuario.getEmail()
+        );
     }
 }

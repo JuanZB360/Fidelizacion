@@ -3,8 +3,8 @@ package com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.Fidelizacion.Registro_Marca.modelos.Marca;
-import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
+import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.ubicacionDTOs.UbicacionRequestDTO;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 
@@ -15,8 +15,8 @@ public record UsuarioRequestCompletarInformacioDTO(
     TipoDocumento tipoDocumento,
     String numeroDocumento,
     LocalDate fechaNacimiento,
-    Ubicacion direccion,
-    Marca marca
+    UbicacionRequestDTO direccion,
+    MarcaRequestDTO marca
 ) {
 
     public Usuario toEntity(){
@@ -27,8 +27,8 @@ public record UsuarioRequestCompletarInformacioDTO(
         .tipoDocumento(tipoDocumento)
         .numeroDocumento(numeroDocumento)
         .fechaNacimiento(fechaNacimiento)
-        .direccion(direccion)
-        .marca(marca)
+        .direccion(direccion.toEntity())
+        .marca(marca.toEntity())
         .build();
     }
 
