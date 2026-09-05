@@ -46,20 +46,26 @@ public class Usuario {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nombre", nullable = false)
+    @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "apellido", nullable = false)
+    @Column(name = "apellido")
     private String apellido;
 
+    @Column(name = "email", nullable = false, unique = true)
+    private String email;
+
+    @Column(name = "contrasena", nullable = false)
+    private String constrasena;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_documento", nullable = false)
+    @Column(name = "tipo_documento")
     private TipoDocumento tipoDocumento;
 
-    @Column(name = "numero_documento", nullable = false, unique = true)
+    @Column(name = "numero_documento", unique = true)
     private String numeroDocumento;
 
-    @Column(name = "fecha_nacimiento", nullable = false)
+    @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
