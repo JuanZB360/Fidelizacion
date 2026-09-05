@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -55,6 +57,8 @@ public class Ubicacion {
     private String pais;
 
     @OneToMany(mappedBy = "direccion", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonManagedReference(value = "UbicacionUsuario")
+    @Builder.Default
     private List<Usuario> usuarios  = new ArrayList<>();
 
 }

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -69,10 +70,13 @@ public class Usuario {
     private LocalDate fechaNacimiento;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn (name = "direccion_id")
+    @JsonBackReference(value = "UbicacionUsuario")
     private Ubicacion direccion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn (name = "marca_id")
+    @JsonBackReference(value = "MarcaUsuario")
     private Marca marca;
 
 }
