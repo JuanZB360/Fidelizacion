@@ -10,8 +10,11 @@ import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarI
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
+import com.Fidelizacion.Registro_Marca.modelos.Marca;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
+import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
+import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.IUsuarioValidacion;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,13 +22,16 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 	public class ImpUsuarioServicio implements IUsuarioServicio {
 
-	private final IUsuarioRepositorio repositorio;
+    private final IUsuarioRepositorio repositorioUsuario;
+	private final IMarcaRepositorio repositorioMarca;
+	private final IUsuarioValidacion validacion;
 
 	@Override
 	public UsuarioResponseLoginDTO crearUsuario(UsuarioRequestLoginDTO datos) {
 
 		Usuario usuario = datos.toEntity();
-		repositorio.save(usuario);
+		validacion.validacionLogin(usuario);
+		repositorioUsuario.save(usuario);
 		return UsuarioResponseLoginDTO.fromEntity(usuario);
 
 	}
@@ -33,42 +39,47 @@ import lombok.RequiredArgsConstructor;
 	@Override
 	public UsuarioResponseCompleto completarInformacio(UUID id, UsuarioRequestCompletarInformacioDTO informacion) {
 
-		Usuario usuario = repositorio.findById(id)
-				.orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
+		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
+
+		Marca marca = repositorioMarca.findById(informacion.marca().id()).orElseThrow(() -> new IllegalArgumentException("La marca no existe: " + informacion.marca().id()));
 
 		usuario.setNombre(informacion.nombre());
 		usuario.setApellido(informacion.apellido());
 		usuario.setTipoDocumento(informacion.tipoDocumento());
 		usuario.setNumeroDocumento(informacion.numeroDocumento());
 		usuario.setFechaNacimiento(informacion.fechaNacimiento());
-		usuario.setDireccion(informacion.direccion());
-		usuario.setMarca(informacion.marca());
+		usuario.setDireccion(informacion.direccion().toEntity());
+		usuario.setMarca(marca);
+		
+		validacion.validacionCompletarInformacion(usuario);
 
-		repositorio.save(usuario);
+		repositorioUsuario.save(usuario);
 		return UsuarioResponseCompleto.fromEntity(usuario);
 	}
 
 	@Override
 	public UsuarioResponseCompleto buscarUsuarioId(UUID id) {
-		Usuario usuario = repositorio.findById(id).orElseThrow(() -> new IllegalArgumentException("El usuario no fue encontrado"));
+		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("El usuario no fue encontrado"));
 
 		return UsuarioResponseCompleto.fromEntity(usuario);
 	}
 
 	@Override
 	public List<UsuarioResponseCompleto> listarUsuarios() {
-		return repositorio.findAll().stream().map(UsuarioResponseCompleto::fromEntity).toList();
+		return repositorioUsuario.findAll().stream().map(UsuarioResponseCompleto::fromEntity).toList();
 	}
 
 	@Override
 	public UsuarioResponseCompleto actualuzarUsuario(UUID id, UsuarioRequestActualizarDTO datos) {
 
-		Usuario usuarioExistente = repositorio.findById(id)
+		Usuario usuarioExistente = repositorioUsuario.findById(id)
 				.orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
 
 		datos.toEntity(usuarioExistente);
 
-		repositorio.save(usuarioExistente);
+		validacion.validarActualizarUsuario(usuarioExistente);
+
+		repositorioUsuario.save(usuarioExistente);
 		return UsuarioResponseCompleto.fromEntity(usuarioExistente);
 
 	}
