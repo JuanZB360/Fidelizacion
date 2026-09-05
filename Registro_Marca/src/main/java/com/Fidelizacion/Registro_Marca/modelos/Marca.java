@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,17 +34,19 @@ import lombok.Setter;
 @Getter 
 @AllArgsConstructor 
 @NoArgsConstructor 
-@Builder 
+@Builder
 public class Marca {
 
     @Id 
     @GeneratedValue (strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nombre")
+    @Column(name = "nombre", unique = true, nullable = false)
     private String nombre;
 
     @OneToMany(mappedBy = "marca", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JsonManagedReference(value = "MarcaUsuario")
+    @Builder.Default
     private List<Usuario> usuarios  = new ArrayList<>();
 
 }

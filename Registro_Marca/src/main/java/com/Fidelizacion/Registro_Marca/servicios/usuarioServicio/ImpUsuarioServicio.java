@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestActualizarDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarInformacioDTO;
@@ -20,13 +21,14 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-	public class ImpUsuarioServicio implements IUsuarioServicio {
+public class ImpUsuarioServicio implements IUsuarioServicio {
 
     private final IUsuarioRepositorio repositorioUsuario;
 	private final IMarcaRepositorio repositorioMarca;
 	private final IUsuarioValidacion validacion;
 
 	@Override
+	@Transactional 
 	public UsuarioResponseLoginDTO crearUsuario(UsuarioRequestLoginDTO datos) {
 
 		Usuario usuario = datos.toEntity();
@@ -37,11 +39,14 @@ import lombok.RequiredArgsConstructor;
 	}
 
 	@Override
+	@Transactional
 	public UsuarioResponseCompleto completarInformacio(UUID id, UsuarioRequestCompletarInformacioDTO informacion) {
 
 		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
 
-		Marca marca = repositorioMarca.findById(informacion.marca().id()).orElseThrow(() -> new IllegalArgumentException("La marca no existe: " + informacion.marca().id()));
+		Marca marca = repositorioMarca.findById(informacion.marca().id())
+				.orElseThrow(() -> new IllegalArgumentException(
+						"La marca no existe: " + informacion.marca().id()));
 
 		usuario.setNombre(informacion.nombre());
 		usuario.setApellido(informacion.apellido());
@@ -58,6 +63,7 @@ import lombok.RequiredArgsConstructor;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public UsuarioResponseCompleto buscarUsuarioId(UUID id) {
 		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("El usuario no fue encontrado"));
 
@@ -65,11 +71,13 @@ import lombok.RequiredArgsConstructor;
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public List<UsuarioResponseCompleto> listarUsuarios() {
 		return repositorioUsuario.findAll().stream().map(UsuarioResponseCompleto::fromEntity).toList();
 	}
 
 	@Override
+	@Transactional
 	public UsuarioResponseCompleto actualuzarUsuario(UUID id, UsuarioRequestActualizarDTO datos) {
 
 		Usuario usuarioExistente = repositorioUsuario.findById(id)
