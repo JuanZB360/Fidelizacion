@@ -7,6 +7,7 @@ import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaResponseDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.ubicacionDTOs.UbicacionResponseDTO;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
+import com.Fidelizacion.Registro_Marca.utils.Roles;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "UsuarioResponseCompleto", description = "Información completa de un usuario")
@@ -19,6 +20,8 @@ public record UsuarioResponseCompleto(
     String apellido,
     @Schema(description = "Correo electrónico del usuario")
     String email,
+    @Schema(description = "Rol del usuario", example = "CLIENTE", accessMode = Schema.AccessMode.READ_ONLY)
+    Roles rol,
     @Schema(description = "Tipo de documento")
     TipoDocumento tipoDocumento,
     @Schema(description = "Número de documento")
@@ -37,6 +40,7 @@ public record UsuarioResponseCompleto(
             usuario.getNombre(),
             usuario.getApellido(),
             usuario.getEmail(),
+            usuario.getRol(),
             usuario.getTipoDocumento(),
             usuario.getNumeroDocumento(),
             usuario.getFechaNacimiento(),
