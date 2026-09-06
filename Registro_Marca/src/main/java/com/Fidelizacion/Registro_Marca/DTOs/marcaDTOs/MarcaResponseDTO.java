@@ -14,6 +14,9 @@ public record MarcaResponseDTO(
 ) {
 
     public static MarcaResponseDTO fromEntity(Marca marca){
+        if (marca == null) {
+            return null;
+        }
         return new MarcaResponseDTO(
             marca.getId(),
             marca.getNombre()

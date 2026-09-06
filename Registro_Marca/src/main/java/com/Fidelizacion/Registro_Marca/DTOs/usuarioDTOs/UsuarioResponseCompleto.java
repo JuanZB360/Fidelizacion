@@ -35,6 +35,9 @@ public record UsuarioResponseCompleto(
 ) {
 
     public static UsuarioResponseCompleto fromEntity(Usuario usuario){
+        if (usuario == null) {
+            return null;
+        }
         return new UsuarioResponseCompleto(
             usuario.getId(),
             usuario.getNombre(),
@@ -44,8 +47,8 @@ public record UsuarioResponseCompleto(
             usuario.getTipoDocumento(),
             usuario.getNumeroDocumento(),
             usuario.getFechaNacimiento(),
-            UbicacionResponseDTO.fromEntity(usuario.getDireccion()),
-            MarcaResponseDTO.fromEntity(usuario.getMarca())
+            usuario.getDireccion() != null ? UbicacionResponseDTO.fromEntity(usuario.getDireccion()) : null,
+            usuario.getMarca() != null ? MarcaResponseDTO.fromEntity(usuario.getMarca()) : null
         );
     }
 

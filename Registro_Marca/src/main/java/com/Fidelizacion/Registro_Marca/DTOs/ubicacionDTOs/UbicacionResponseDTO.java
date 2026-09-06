@@ -20,6 +20,9 @@ public record UbicacionResponseDTO(
 ) {
 
     public static UbicacionResponseDTO fromEntity(Ubicacion ubicacion){
+        if (ubicacion == null) {
+            return null;
+        }
         return new UbicacionResponseDTO(
             ubicacion.getId(),
             ubicacion.getDireccion(), 
