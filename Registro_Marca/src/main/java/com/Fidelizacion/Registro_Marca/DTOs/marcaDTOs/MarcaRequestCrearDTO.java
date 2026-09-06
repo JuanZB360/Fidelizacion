@@ -11,7 +11,7 @@ public record MarcaRequestCrearDTO(
 
     public Marca toEntity(){
         return Marca.builder()
-        .nombre(nombre.trim())
+        .nombre(nombre != null ? nombre.trim() : null)
         .build();
     }
 

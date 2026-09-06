@@ -49,10 +49,9 @@ public class ImpMarcaServicio implements IMarcaServicio {
 
         validacionMarca.validarCreacionMarca(marca, repositorioMarca.existsByNombre(marca.getNombre()));
 
-        repositorioMarca.save(marca);
+        Marca marcaGuardada = repositorioMarca.save(marca);
 
-        return MarcaResponseDTO.fromEntity(marca);
-
+        return MarcaResponseDTO.fromEntity(marcaGuardada);
     }
 
     @Override
