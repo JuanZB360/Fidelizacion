@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestCrearDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestActualizarDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaResponseDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
@@ -52,6 +53,22 @@ public class ImpMarcaServicio implements IMarcaServicio {
 
         return MarcaResponseDTO.fromEntity(marca);
 
+    }
+
+    @Override
+    @Transactional
+    public MarcaResponseDTO actualizarMarca(UUID id, MarcaRequestActualizarDTO datos) {
+        Marca marca = repositorioMarca.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "La marca no existe: " + id));
+
+        String nombre = datos.nombre() == null ? null : datos.nombre().trim();
+        validacionMarca.validarNombreMarca(nombre);
+        validacionMarca.validarQueSeaUnico(
+                repositorioMarca.existsByNombreAndIdNot(nombre, id));
+
+        marca.setNombre(nombre);
+        return MarcaResponseDTO.fromEntity(repositorioMarca.save(marca));
     }
 
     @Override

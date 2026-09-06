@@ -12,4 +12,5 @@ import com.Fidelizacion.Registro_Marca.modelos.Marca;
 public interface IMarcaRepositorio extends JpaRepository<Marca, UUID> {
 
     Boolean existsByNombre(String nombre);
+    boolean existsByNombreAndIdNot(String nombre, UUID id);
 }
