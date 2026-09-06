@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
+import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
@@ -58,6 +59,11 @@ public class Usuario {
 
     @Column(name = "contrasena", nullable = false)
     private String constrasena;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "rol", nullable = false)
+    @Builder.Default
+    private Roles rol = Roles.CLIENTE;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_documento")

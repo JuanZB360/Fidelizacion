@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
+import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.Fidelizacion.Registro_Marca.validaciones.marcaValidacion.ImpMarcaValidacion;
 import com.Fidelizacion.Registro_Marca.validaciones.ubicacionValidacion.ImpUbicacionValidacion;
 
@@ -45,6 +46,15 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
                     "Debes seleccionar un tipo de documento válido.");
         }
 
+    }
+
+    @Override
+    public void validarRol(Roles rol) {
+        if (rol == null) {
+            throw new ValidacionExcepcion(
+                    "rol",
+                    "El rol del usuario es obligatorio");
+        }
     }
 
     @Override
@@ -105,6 +115,7 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
 
         validarEmail(usuario.getEmail());
         validarContraseña(usuario.getConstrasena());
+        validarRol(usuario.getRol());
 
     }
 
@@ -114,6 +125,7 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
         validarNombreApellido(usuario.getNombre());
         validarNombreApellido(usuario.getApellido());
         validarIdentificacion(usuario.getTipoDocumento());
+        validarRol(usuario.getRol());
         validarNumeroIdentificacion(usuario.getNumeroDocumento());
         validarFechaNacimiento(usuario.getFechaNacimiento());
         validacionMarca.validarNombreMarca(usuario.getMarca().getNombre());
@@ -123,6 +135,7 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
 
     @Override
     public void validarActualizarUsuario(Usuario usuario) {
+        validarRol(usuario.getRol());
         if (usuario.getEmail() != null) {
             validarEmail(usuario.getEmail());
         }

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
+import com.Fidelizacion.Registro_Marca.utils.Roles;
 
 /*
 
@@ -22,6 +23,7 @@ public interface IUsuarioValidacion {
 
     void validarNombreApellido(String nombreApellido);
     void validarIdentificacion(TipoDocumento tipoDocumento);
+    void validarRol(Roles rol);
     void validarNumeroIdentificacion(String numeroIdentificacion);
     void validarFechaNacimiento(LocalDate fechaNacimiento);
     void validarEmail(String email);
