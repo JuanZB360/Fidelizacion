@@ -20,6 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.tipoDocumentoDTOs.TipoDocumentoRequestDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.ubicacionDTOs.UbicacionRequestDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestActualizarDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarInformacioDTO;
@@ -28,14 +29,15 @@ import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
+import com.Fidelizacion.Registro_Marca.repositorio.ITipoDocumentoRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUbicacionRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
 import com.Fidelizacion.Registro_Marca.servicios.usuarioServicio.ImpUsuarioServicio;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.IUsuarioValidacion;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +50,9 @@ class UsuarioServicioTest {
     private IMarcaRepositorio repositorioMarca;
 
     @Mock
+    private ITipoDocumentoRepositorio repositorioTipoDocumento;
+
+    @Mock
     private IUsuarioValidacion validacion;
 
     @Mock
@@ -57,7 +62,7 @@ class UsuarioServicioTest {
 
     @BeforeEach
     void setUp() {
-        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, validacion, repositorioUbicacion);
+        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, repositorioTipoDocumento, validacion, repositorioUbicacion);
     }
 
     @Test
@@ -125,6 +130,7 @@ class UsuarioServicioTest {
     void debeCompletarInformacionUsuarioExitosamenteReutilizandoUbicacion() {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
 
         Usuario usuarioExistente = Usuario.builder()
                 .id(usuarioId)
@@ -137,6 +143,12 @@ class UsuarioServicioTest {
                 .nombre("Marca Central")
                 .build();
 
+        TipoDocumento tipoDocExistente = TipoDocumento.builder()
+                .id(tipoDocumentoId)
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+
         Ubicacion ubicacionExistente = Ubicacion.builder()
                 .id(UUID.randomUUID())
                 .direccion("Calle 10 # 20-30")
@@ -147,6 +159,7 @@ class UsuarioServicioTest {
 
         when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.of(usuarioExistente));
         when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.of(tipoDocExistente));
         when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
                 "Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"))
                 .thenReturn(Optional.of(ubicacionExistente));
@@ -156,7 +169,7 @@ class UsuarioServicioTest {
                 usuarioId,
                 "Carlos",
                 "Pérez",
-                TipoDocumento.CC,
+                new TipoDocumentoRequestDTO(tipoDocumentoId),
                 "1234567890",
                 LocalDate.now().minusYears(25),
                 new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
@@ -171,6 +184,8 @@ class UsuarioServicioTest {
         assertEquals("Pérez", respuesta.apellido());
         assertEquals("1234567890", respuesta.numeroDocumento());
         assertEquals("Marca Central", respuesta.marca().nombre());
+        assertEquals("Cédula de Ciudadanía", respuesta.tipoDocumento().nombre());
+        assertEquals("CC", respuesta.tipoDocumento().abreviatura());
         assertEquals("Calle 10 # 20-30", respuesta.direccion().direccion());
     }
 
@@ -178,6 +193,7 @@ class UsuarioServicioTest {
     void debeCompletarInformacionUsuarioCreandoNuevaUbicacionSiNoExiste() {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
 
         Usuario usuarioExistente = Usuario.builder()
                 .id(usuarioId)
@@ -190,6 +206,12 @@ class UsuarioServicioTest {
                 .nombre("Marca Central")
                 .build();
 
+        TipoDocumento tipoDocExistente = TipoDocumento.builder()
+                .id(tipoDocumentoId)
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+
         Ubicacion nuevaUbicacion = Ubicacion.builder()
                 .id(UUID.randomUUID())
                 .direccion("Calle 10 # 20-30")
@@ -200,6 +222,7 @@ class UsuarioServicioTest {
 
         when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.of(usuarioExistente));
         when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.of(tipoDocExistente));
         when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
                 "Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"))
                 .thenReturn(Optional.empty());
@@ -210,7 +233,7 @@ class UsuarioServicioTest {
                 usuarioId,
                 "Carlos",
                 "Pérez",
-                TipoDocumento.CC,
+                new TipoDocumentoRequestDTO(tipoDocumentoId),
                 "1234567890",
                 LocalDate.now().minusYears(25),
                 new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
@@ -223,19 +246,21 @@ class UsuarioServicioTest {
         verify(repositorioUsuario).save(usuarioExistente);
         assertEquals("Carlos", respuesta.nombre());
         assertEquals("Calle 10 # 20-30", respuesta.direccion().direccion());
+        assertEquals("CC", respuesta.tipoDocumento().abreviatura());
     }
 
     @Test
     void debeLanzarExcepcionSiUsuarioNoExisteAlCompletarInformacion() {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
         when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.empty());
 
         UsuarioRequestCompletarInformacioDTO info = new UsuarioRequestCompletarInformacioDTO(
                 usuarioId,
                 "Carlos",
                 "Pérez",
-                TipoDocumento.CC,
+                new TipoDocumentoRequestDTO(tipoDocumentoId),
                 "1234567890",
                 LocalDate.now().minusYears(25),
                 new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
@@ -249,6 +274,7 @@ class UsuarioServicioTest {
     void debeLanzarExcepcionSiMarcaNoExisteAlCompletarInformacion() {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
 
         Usuario usuarioExistente = Usuario.builder()
                 .id(usuarioId)
@@ -262,7 +288,41 @@ class UsuarioServicioTest {
                 usuarioId,
                 "Carlos",
                 "Pérez",
-                TipoDocumento.CC,
+                new TipoDocumentoRequestDTO(tipoDocumentoId),
+                "1234567890",
+                LocalDate.now().minusYears(25),
+                new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
+                new MarcaRequestDTO(marcaId));
+
+        assertThrows(ValidacionExcepcion.class,
+                () -> servicio.completarInformacio(usuarioId, info));
+    }
+
+    @Test
+    void debeLanzarExcepcionSiTipoDocumentoNoExisteAlCompletarInformacion() {
+        UUID usuarioId = UUID.randomUUID();
+        UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
+
+        Usuario usuarioExistente = Usuario.builder()
+                .id(usuarioId)
+                .email("carlos@example.com")
+                .build();
+
+        Marca marcaExistente = Marca.builder()
+                .id(marcaId)
+                .nombre("Marca Central")
+                .build();
+
+        when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.of(usuarioExistente));
+        when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.empty());
+
+        UsuarioRequestCompletarInformacioDTO info = new UsuarioRequestCompletarInformacioDTO(
+                usuarioId,
+                "Carlos",
+                "Pérez",
+                new TipoDocumentoRequestDTO(tipoDocumentoId),
                 "1234567890",
                 LocalDate.now().minusYears(25),
                 new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),

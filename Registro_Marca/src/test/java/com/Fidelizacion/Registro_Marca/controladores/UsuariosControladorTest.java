@@ -75,6 +75,7 @@ class UsuariosControladorTest {
     void debeCompletarInformacion() throws Exception {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
         UsuarioResponseCompleto respuesta = new UsuarioResponseCompleto(
                 usuarioId, "Carlos", "Pérez", "carlos@example.com",
                 Roles.CLIENTE, null, "1234567890", null, null, null);
@@ -89,7 +90,9 @@ class UsuariosControladorTest {
                             "id": "%s",
                             "nombre": "Carlos",
                             "apellido": "Pérez",
-                            "tipoDocumento": "CC",
+                            "tipoDocumento": {
+                                "id": "%s"
+                            },
                             "numeroDocumento": "1234567890",
                             "fechaNacimiento": "2000-01-01",
                             "direccion": {
@@ -102,7 +105,7 @@ class UsuariosControladorTest {
                                 "id": "%s"
                             }
                         }
-                        """.formatted(usuarioId, marcaId)))
+                        """.formatted(usuarioId, tipoDocumentoId, marcaId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(usuarioId.toString()))
                 .andExpect(jsonPath("$.nombre").value("Carlos"))

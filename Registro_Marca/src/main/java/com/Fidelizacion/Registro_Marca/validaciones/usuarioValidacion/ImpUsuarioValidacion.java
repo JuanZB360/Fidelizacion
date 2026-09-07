@@ -5,10 +5,11 @@ import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.Fidelizacion.Registro_Marca.validaciones.marcaValidacion.ImpMarcaValidacion;
+import com.Fidelizacion.Registro_Marca.validaciones.tipoDocumentoValidacion.ImpTipoDocumentoValidacion;
 import com.Fidelizacion.Registro_Marca.validaciones.ubicacionValidacion.ImpUbicacionValidacion;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
 
     private final ImpMarcaValidacion validacionMarca;
     private final ImpUbicacionValidacion validacionUbicacion;
+    private final ImpTipoDocumentoValidacion validacionTipoDocumento;
 
     @Override
     public void validarNombreApellido(String nombreApellido) {
@@ -128,6 +130,9 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
         validarRol(usuario.getRol());
         validarNumeroIdentificacion(usuario.getNumeroDocumento());
         validarFechaNacimiento(usuario.getFechaNacimiento());
+        if (usuario.getTipoDocumento() != null && usuario.getTipoDocumento().getNombre() != null) {
+            validacionTipoDocumento.validarNombre(usuario.getTipoDocumento().getNombre());
+        }
         validacionMarca.validarNombreMarca(usuario.getMarca().getNombre());
         validacionUbicacion.validarUbicacion(usuario.getDireccion());
 
@@ -142,6 +147,11 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
 
         if (usuario.getConstrasena() != null) {
             validarContraseña(usuario.getConstrasena());
+        }
+
+        if (usuario.getTipoDocumento() != null && usuario.getTipoDocumento().getNombre() != null) {
+            validacionTipoDocumento.validarNombre(
+                    usuario.getTipoDocumento().getNombre());
         }
 
         if (usuario.getMarca() != null) {

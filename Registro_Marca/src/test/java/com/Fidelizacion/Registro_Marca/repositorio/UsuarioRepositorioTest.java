@@ -13,10 +13,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 
 @SpringBootTest
 @Transactional
@@ -30,6 +30,9 @@ class UsuarioRepositorioTest {
 
     @Autowired
     private IUbicacionRepositorio ubicacionRepositorio;
+
+    @Autowired
+    private ITipoDocumentoRepositorio tipoDocumentoRepositorio;
 
     @Test
     void debeGuardarYBuscarUsuarioPorId() {
@@ -57,6 +60,10 @@ class UsuarioRepositorioTest {
                 .departamento("Cundinamarca")
                 .pais("Colombia")
                 .build());
+        TipoDocumento tipoDocumento = tipoDocumentoRepositorio.save(TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build());
 
         Usuario usuario = Usuario.builder()
                 .nombre("Mariana")
@@ -64,7 +71,7 @@ class UsuarioRepositorioTest {
                 .email("mariana@example.com")
                 .constrasena("ClaveSegura1!")
                 .rol(Roles.ADMIN)
-                .tipoDocumento(TipoDocumento.CC)
+                .tipoDocumento(tipoDocumento)
                 .numeroDocumento("9876543210")
                 .fechaNacimiento(LocalDate.of(1998, 5, 20))
                 .marca(marca)
@@ -79,5 +86,8 @@ class UsuarioRepositorioTest {
         assertEquals("Mariana", encontrado.get().getNombre());
         assertEquals("Marca Repositorio", encontrado.get().getMarca().getNombre());
         assertEquals("Carrera 15 # 85-10", encontrado.get().getDireccion().getDireccion());
+        assertNotNull(encontrado.get().getTipoDocumento());
+        assertEquals("Cédula de Ciudadanía", encontrado.get().getTipoDocumento().getNombre());
+        assertEquals("CC", encontrado.get().getTipoDocumento().getAbreviatura());
     }
 }

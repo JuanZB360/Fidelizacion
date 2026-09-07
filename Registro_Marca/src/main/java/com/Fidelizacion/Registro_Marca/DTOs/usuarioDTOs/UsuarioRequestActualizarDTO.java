@@ -2,6 +2,7 @@ package com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs;
 
 
 import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.tipoDocumentoDTOs.TipoDocumentoRequestDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.ubicacionDTOs.UbicacionRequestDTO;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,11 +13,17 @@ public record UsuarioRequestActualizarDTO(
     UbicacionRequestDTO direccion,
     @Schema(description = "Marca existente que se asociará al usuario")
     MarcaRequestDTO marca,
+    @Schema(description = "Tipo de documento existente que se asociará al usuario")
+    TipoDocumentoRequestDTO tipoDocumento,
     @Schema(description = "Nueva contraseña del usuario", example = "NuevaClave1!", accessMode = Schema.AccessMode.WRITE_ONLY)
     String contrasena,
     @Schema(description = "Nuevo correo electrónico", example = "nuevo@example.com")
     String email
 ) {
+
+    public UsuarioRequestActualizarDTO(UbicacionRequestDTO direccion, MarcaRequestDTO marca, String contrasena, String email) {
+        this(direccion, marca, null, contrasena, email);
+    }
 
     public Usuario toEntity(Usuario usuario){
 
@@ -26,6 +33,10 @@ public record UsuarioRequestActualizarDTO(
 
         if (marca != null) {
             usuario.setMarca(marca.toEntity());
+        }
+
+        if (tipoDocumento != null) {
+            usuario.setTipoDocumento(tipoDocumento.toEntity());
         }
 
         if (contrasena != null) {
