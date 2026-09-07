@@ -30,6 +30,7 @@ public interface IUsuarioValidacion {
     void validarContraseña(String contraseña);
     void validacionLogin(Usuario usuario);
     void validacionCompletarInformacion(Usuario usuario);
+    void validarCreacionUsuario(Usuario usuario);
     void validarActualizarUsuario(Usuario usuario);
 
 }
