@@ -7,10 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestActualizarDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarInformacioDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCrearDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
 import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
@@ -36,48 +34,41 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
 	@Override
 	@Transactional 
-	public UsuarioResponseLoginDTO crearUsuario(UsuarioRequestLoginDTO datos) {
+	public UsuarioResponseCompleto crearUsuario(UsuarioRequestCrearDTO datos) {
 
-		Usuario usuario = datos.toEntity();
-		validacion.validacionLogin(usuario);
-		repositorioUsuario.save(usuario);
-		return UsuarioResponseLoginDTO.fromEntity(usuario);
+		if (datos.marca() == null || datos.marca().id() == null) {
+			throw new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida");
+		}
+		Marca marca = repositorioMarca.findById(datos.marca().id())
+				.orElseThrow(() -> new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida"));
 
-	}
-
-	@Override
-	@Transactional
-	public UsuarioResponseCompleto completarInformacio(UUID id, UsuarioRequestCompletarInformacioDTO informacion) {
-
-		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
-
-		Marca marca = repositorioMarca.findById(informacion.marca().id()).orElseThrow(() -> new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida"));
-
-		if (informacion.tipoDocumento() == null || informacion.tipoDocumento().id() == null) {
+		if (datos.tipoDocumento() == null || datos.tipoDocumento().id() == null) {
 			throw new ValidacionExcepcion("tipoDocumento", "Debes seleccionar un tipo de documento válido");
 		}
-
-		TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(informacion.tipoDocumento().id())
+		TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id())
 				.orElseThrow(() -> new ValidacionExcepcion("tipoDocumento", "Selecciona Un Tipo de Documento Valido"));
 
-		Ubicacion ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(informacion.direccion().direccion(), informacion.direccion().ciudad(), informacion.direccion().departamento(), informacion.direccion().pais()).orElse(null);
+		if (datos.direccion() == null) {
+			throw new ValidacionExcepcion("direccion", "Debes proporcionar una ubicación válida");
+		}
+		Ubicacion ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
+				datos.direccion().direccion(), datos.direccion().ciudad(), datos.direccion().departamento(), datos.direccion().pais())
+				.orElse(null);
 
-		if(ubicacion == null){
-			ubicacion = repositorioUbicacion.save(informacion.direccion().toEntity());
+		if (ubicacion == null) {
+			ubicacion = repositorioUbicacion.save(datos.direccion().toEntity());
 		}
 
-		usuario.setNombre(informacion.nombre());
-		usuario.setApellido(informacion.apellido());
-		usuario.setTipoDocumento(tipoDocumento);
-		usuario.setNumeroDocumento(informacion.numeroDocumento());
-		usuario.setFechaNacimiento(informacion.fechaNacimiento());
-		usuario.setDireccion(ubicacion);
+		Usuario usuario = datos.toEntity();
 		usuario.setMarca(marca);
-		
-		validacion.validacionCompletarInformacion(usuario);
+		usuario.setTipoDocumento(tipoDocumento);
+		usuario.setDireccion(ubicacion);
+
+		validacion.validarCreacionUsuario(usuario);
 
 		repositorioUsuario.save(usuario);
 		return UsuarioResponseCompleto.fromEntity(usuario);
+
 	}
 
 	@Override

@@ -11,17 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestActualizarDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarInformacioDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCrearDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
 import com.Fidelizacion.Registro_Marca.servicios.usuarioServicio.IUsuarioServicio;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -35,27 +32,15 @@ public class UsuariosControlador {
     private final IUsuarioServicio usuarioServicio;
 
     @PostMapping
-        @Operation(summary = "Crear usuario", description = "Registra un usuario con sus credenciales")
+        @Operation(summary = "Crear usuario", description = "Registra un usuario con toda su información personal, ubicación y marca")
         @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Usuario creado correctamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de usuario inválidos")
+            @ApiResponse(responseCode = "400", description = "Datos de usuario inválidos"),
+            @ApiResponse(responseCode = "404", description = "Marca o tipo de documento no encontrado")
         })
-    public UsuarioResponseLoginDTO crearUsuario(
-            @RequestBody UsuarioRequestLoginDTO datos) {
+    public UsuarioResponseCompleto crearUsuario(
+            @RequestBody UsuarioRequestCrearDTO datos) {
         return usuarioServicio.crearUsuario(datos);
-    }
-
-    @PutMapping("/{id}/informacion")
-        @Operation(summary = "Completar información", description = "Completa la información personal de un usuario")
-        @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Información completada correctamente"),
-            @ApiResponse(responseCode = "400", description = "Información inválida"),
-            @ApiResponse(responseCode = "404", description = "Usuario o marca no encontrada")
-        })
-    public UsuarioResponseCompleto completarInformacion(
-            @PathVariable UUID id,
-            @RequestBody UsuarioRequestCompletarInformacioDTO informacion) {
-        return usuarioServicio.completarInformacio(id, informacion);
     }
 
     @GetMapping("/{id}")

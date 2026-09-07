@@ -251,6 +251,65 @@ class ValidacionesTest {
     }
 
     @Test
+    void debeValidarCreacionUsuarioCompletaValida() {
+        Marca marca = Marca.builder().nombre("Marca Central").build();
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("Calle 10#20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        Usuario usuario = Usuario.builder()
+                .nombre("Carlos")
+                .apellido("Pérez")
+                .email("carlos@example.com")
+                .constrasena("ClaveSegura1!")
+                .tipoDocumento(tipoDocumento)
+                .rol(Roles.CLIENTE)
+                .numeroDocumento("1234567890")
+                .fechaNacimiento(LocalDate.now().minusYears(20))
+                .marca(marca)
+                .direccion(ubicacion)
+                .build();
+
+        assertDoesNotThrow(() -> usuarioValidacion.validarCreacionUsuario(usuario));
+    }
+
+    @Test
+    void debeRechazarCreacionUsuarioConEmailInvalido() {
+        Marca marca = Marca.builder().nombre("Marca Central").build();
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("Calle 10#20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        Usuario usuario = Usuario.builder()
+                .nombre("Carlos")
+                .apellido("Pérez")
+                .email("correo-invalido")
+                .constrasena("ClaveSegura1!")
+                .tipoDocumento(tipoDocumento)
+                .rol(Roles.CLIENTE)
+                .numeroDocumento("1234567890")
+                .fechaNacimiento(LocalDate.now().minusYears(20))
+                .marca(marca)
+                .direccion(ubicacion)
+                .build();
+
+        assertThrows(ValidacionExcepcion.class,
+                () -> usuarioValidacion.validarCreacionUsuario(usuario));
+    }
+
+    @Test
     void debeValidarTipoDocumentoValido() {
         TipoDocumento tipoDoc = TipoDocumento.builder()
                 .nombre("Cédula de Extranjería")

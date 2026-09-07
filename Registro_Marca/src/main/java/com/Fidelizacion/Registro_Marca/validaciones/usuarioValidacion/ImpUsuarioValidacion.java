@@ -139,6 +139,12 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
     }
 
     @Override
+    public void validarCreacionUsuario(Usuario usuario) {
+        validacionLogin(usuario);
+        validacionCompletarInformacion(usuario);
+    }
+
+    @Override
     public void validarActualizarUsuario(Usuario usuario) {
         validarRol(usuario.getRol());
         if (usuario.getEmail() != null) {
