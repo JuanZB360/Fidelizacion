@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -25,9 +26,12 @@ import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarI
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
+import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
+import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
+import com.Fidelizacion.Registro_Marca.repositorio.IUbicacionRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
 import com.Fidelizacion.Registro_Marca.servicios.usuarioServicio.ImpUsuarioServicio;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
@@ -46,11 +50,14 @@ class UsuarioServicioTest {
     @Mock
     private IUsuarioValidacion validacion;
 
+    @Mock
+    private IUbicacionRepositorio repositorioUbicacion;
+
     private ImpUsuarioServicio servicio;
 
     @BeforeEach
     void setUp() {
-        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, validacion);
+        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, validacion, repositorioUbicacion);
     }
 
     @Test
@@ -115,7 +122,7 @@ class UsuarioServicioTest {
     }
 
     @Test
-    void debeCompletarInformacionUsuarioExitosamente() {
+    void debeCompletarInformacionUsuarioExitosamenteReutilizandoUbicacion() {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
 
@@ -130,8 +137,19 @@ class UsuarioServicioTest {
                 .nombre("Marca Central")
                 .build();
 
+        Ubicacion ubicacionExistente = Ubicacion.builder()
+                .id(UUID.randomUUID())
+                .direccion("Calle 10 # 20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+
         when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.of(usuarioExistente));
         when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
+                "Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"))
+                .thenReturn(Optional.of(ubicacionExistente));
         when(repositorioUsuario.save(usuarioExistente)).thenReturn(usuarioExistente);
 
         UsuarioRequestCompletarInformacioDTO info = new UsuarioRequestCompletarInformacioDTO(
@@ -146,12 +164,64 @@ class UsuarioServicioTest {
 
         UsuarioResponseCompleto respuesta = servicio.completarInformacio(usuarioId, info);
 
+        verify(repositorioUbicacion, never()).save(any(Ubicacion.class));
         verify(validacion).validacionCompletarInformacion(usuarioExistente);
         verify(repositorioUsuario).save(usuarioExistente);
         assertEquals("Carlos", respuesta.nombre());
         assertEquals("Pérez", respuesta.apellido());
         assertEquals("1234567890", respuesta.numeroDocumento());
         assertEquals("Marca Central", respuesta.marca().nombre());
+        assertEquals("Calle 10 # 20-30", respuesta.direccion().direccion());
+    }
+
+    @Test
+    void debeCompletarInformacionUsuarioCreandoNuevaUbicacionSiNoExiste() {
+        UUID usuarioId = UUID.randomUUID();
+        UUID marcaId = UUID.randomUUID();
+
+        Usuario usuarioExistente = Usuario.builder()
+                .id(usuarioId)
+                .email("carlos@example.com")
+                .constrasena("ClaveSegura1!")
+                .build();
+
+        Marca marcaExistente = Marca.builder()
+                .id(marcaId)
+                .nombre("Marca Central")
+                .build();
+
+        Ubicacion nuevaUbicacion = Ubicacion.builder()
+                .id(UUID.randomUUID())
+                .direccion("Calle 10 # 20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+
+        when(repositorioUsuario.findById(usuarioId)).thenReturn(Optional.of(usuarioExistente));
+        when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
+                "Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"))
+                .thenReturn(Optional.empty());
+        when(repositorioUbicacion.save(any(Ubicacion.class))).thenReturn(nuevaUbicacion);
+        when(repositorioUsuario.save(usuarioExistente)).thenReturn(usuarioExistente);
+
+        UsuarioRequestCompletarInformacioDTO info = new UsuarioRequestCompletarInformacioDTO(
+                usuarioId,
+                "Carlos",
+                "Pérez",
+                TipoDocumento.CC,
+                "1234567890",
+                LocalDate.now().minusYears(25),
+                new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
+                new MarcaRequestDTO(marcaId));
+
+        UsuarioResponseCompleto respuesta = servicio.completarInformacio(usuarioId, info);
+
+        verify(repositorioUbicacion).save(any(Ubicacion.class));
+        verify(validacion).validacionCompletarInformacion(usuarioExistente);
+        verify(repositorioUsuario).save(usuarioExistente);
+        assertEquals("Carlos", respuesta.nombre());
         assertEquals("Calle 10 # 20-30", respuesta.direccion().direccion());
     }
 
@@ -198,7 +268,7 @@ class UsuarioServicioTest {
                 new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
                 new MarcaRequestDTO(marcaId));
 
-        assertThrows(IllegalArgumentException.class,
+        assertThrows(ValidacionExcepcion.class,
                 () -> servicio.completarInformacio(usuarioId, info));
     }
 

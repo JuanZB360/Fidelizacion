@@ -11,9 +11,12 @@ import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarI
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
+import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
+import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
+import com.Fidelizacion.Registro_Marca.repositorio.IUbicacionRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
 import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.IUsuarioValidacion;
 
@@ -26,6 +29,7 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
     private final IUsuarioRepositorio repositorioUsuario;
 	private final IMarcaRepositorio repositorioMarca;
 	private final IUsuarioValidacion validacion;
+	private final IUbicacionRepositorio repositorioUbicacion;
 
 	@Override
 	@Transactional 
@@ -44,16 +48,20 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
 		Usuario usuario = repositorioUsuario.findById(id).orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
 
-		Marca marca = repositorioMarca.findById(informacion.marca().id())
-				.orElseThrow(() -> new IllegalArgumentException(
-						"La marca no existe: " + informacion.marca().id()));
+		Marca marca = repositorioMarca.findById(informacion.marca().id()).orElseThrow(() -> new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida"));
+
+		Ubicacion ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(informacion.direccion().direccion(), informacion.direccion().ciudad(), informacion.direccion().departamento(), informacion.direccion().pais()).orElse(null);
+
+		if(ubicacion == null){
+			ubicacion = repositorioUbicacion.save(informacion.direccion().toEntity());
+		}
 
 		usuario.setNombre(informacion.nombre());
 		usuario.setApellido(informacion.apellido());
 		usuario.setTipoDocumento(informacion.tipoDocumento());
 		usuario.setNumeroDocumento(informacion.numeroDocumento());
 		usuario.setFechaNacimiento(informacion.fechaNacimiento());
-		usuario.setDireccion(informacion.direccion().toEntity());
+		usuario.setDireccion(ubicacion);
 		usuario.setMarca(marca);
 		
 		validacion.validacionCompletarInformacion(usuario);

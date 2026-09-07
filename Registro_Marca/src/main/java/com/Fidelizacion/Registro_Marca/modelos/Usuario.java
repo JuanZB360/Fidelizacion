@@ -7,6 +7,7 @@ import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -75,7 +76,7 @@ public class Usuario {
     @Column(name = "fecha_nacimiento")
     private LocalDate fechaNacimiento;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinColumn (name = "direccion_id")
     @JsonBackReference(value = "UbicacionUsuario")
     private Ubicacion direccion;
