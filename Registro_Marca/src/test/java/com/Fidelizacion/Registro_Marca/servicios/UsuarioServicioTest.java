@@ -260,6 +260,91 @@ class UsuarioServicioTest {
     }
 
     @Test
+    void debeLanzarExcepcionSiEmailYaExisteAlCrearUsuario() {
+        UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
+
+        Marca marcaExistente = Marca.builder().id(marcaId).nombre("Marca Central").build();
+        TipoDocumento tipoDocExistente = TipoDocumento.builder().id(tipoDocumentoId).nombre("CC").abreviatura("CC").build();
+        Ubicacion ubicacionExistente = Ubicacion.builder().id(UUID.randomUUID()).direccion("Calle 10 # 20-30").ciudad("Bogota").departamento("Cundinamarca").pais("Colombia").build();
+
+        when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.of(tipoDocExistente));
+        when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(any(), any(), any(), any())).thenReturn(Optional.of(ubicacionExistente));
+        when(repositorioUsuario.existsByEmail("carlos@example.com")).thenReturn(true);
+        org.mockito.Mockito.doThrow(new ValidacionExcepcion("email", "El correo electrónico ya se encuentra registrado"))
+                .when(validacion).validarEmailUnico(true);
+
+        UsuarioRequestCrearDTO datos = new UsuarioRequestCrearDTO(
+                "Carlos", "Pérez", "carlos@example.com", "ClaveSegura1!", Roles.CLIENTE,
+                new TipoDocumentoRequestDTO(tipoDocumentoId), "1234567890", LocalDate.now().minusYears(25),
+                new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
+                new MarcaRequestDTO(marcaId));
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class, () -> servicio.crearUsuario(datos));
+        assertEquals("email", excepcion.getCampo());
+        assertEquals("El correo electrónico ya se encuentra registrado", excepcion.getMessage());
+    }
+
+    @Test
+    void debeLanzarExcepcionSiNumeroDocumentoYaExisteAlCrearUsuario() {
+        UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
+
+        Marca marcaExistente = Marca.builder().id(marcaId).nombre("Marca Central").build();
+        TipoDocumento tipoDocExistente = TipoDocumento.builder().id(tipoDocumentoId).nombre("CC").abreviatura("CC").build();
+        Ubicacion ubicacionExistente = Ubicacion.builder().id(UUID.randomUUID()).direccion("Calle 10 # 20-30").ciudad("Bogota").departamento("Cundinamarca").pais("Colombia").build();
+
+        when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.of(tipoDocExistente));
+        when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(any(), any(), any(), any())).thenReturn(Optional.of(ubicacionExistente));
+        when(repositorioUsuario.existsByNumeroDocumento("1234567890")).thenReturn(true);
+        org.mockito.Mockito.doThrow(new ValidacionExcepcion("numeroDocumento", "El número de documento ya se encuentra registrado"))
+                .when(validacion).validarNumeroDocumentoUnico(true);
+
+        UsuarioRequestCrearDTO datos = new UsuarioRequestCrearDTO(
+                "Carlos", "Pérez", "carlos@example.com", "ClaveSegura1!", Roles.CLIENTE,
+                new TipoDocumentoRequestDTO(tipoDocumentoId), "1234567890", LocalDate.now().minusYears(25),
+                new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
+                new MarcaRequestDTO(marcaId));
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class, () -> servicio.crearUsuario(datos));
+        assertEquals("numeroDocumento", excepcion.getCampo());
+        assertEquals("El número de documento ya se encuentra registrado", excepcion.getMessage());
+    }
+
+    @Test
+    void debeAcumularErroresSiEmailYNumeroDocumentoYaExistenAlCrearUsuario() {
+        UUID marcaId = UUID.randomUUID();
+        UUID tipoDocumentoId = UUID.randomUUID();
+
+        Marca marcaExistente = Marca.builder().id(marcaId).nombre("Marca Central").build();
+        TipoDocumento tipoDocExistente = TipoDocumento.builder().id(tipoDocumentoId).nombre("CC").abreviatura("CC").build();
+        Ubicacion ubicacionExistente = Ubicacion.builder().id(UUID.randomUUID()).direccion("Calle 10 # 20-30").ciudad("Bogota").departamento("Cundinamarca").pais("Colombia").build();
+
+        when(repositorioMarca.findById(marcaId)).thenReturn(Optional.of(marcaExistente));
+        when(repositorioTipoDocumento.findById(tipoDocumentoId)).thenReturn(Optional.of(tipoDocExistente));
+        when(repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(any(), any(), any(), any())).thenReturn(Optional.of(ubicacionExistente));
+        when(repositorioUsuario.existsByEmail("carlos@example.com")).thenReturn(true);
+        when(repositorioUsuario.existsByNumeroDocumento("1234567890")).thenReturn(true);
+        org.mockito.Mockito.doThrow(new ValidacionExcepcion("email", "El correo electrónico ya se encuentra registrado"))
+                .when(validacion).validarEmailUnico(true);
+        org.mockito.Mockito.doThrow(new ValidacionExcepcion("numeroDocumento", "El número de documento ya se encuentra registrado"))
+                .when(validacion).validarNumeroDocumentoUnico(true);
+
+        UsuarioRequestCrearDTO datos = new UsuarioRequestCrearDTO(
+                "Carlos", "Pérez", "carlos@example.com", "ClaveSegura1!", Roles.CLIENTE,
+                new TipoDocumentoRequestDTO(tipoDocumentoId), "1234567890", LocalDate.now().minusYears(25),
+                new UbicacionRequestDTO("Calle 10 # 20-30", "Bogotá", "Cundinamarca", "Colombia"),
+                new MarcaRequestDTO(marcaId));
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class, () -> servicio.crearUsuario(datos));
+        assertEquals(2, excepcion.getErrores().size());
+        assertEquals("El correo electrónico ya se encuentra registrado", excepcion.getErrores().get("email"));
+        assertEquals("El número de documento ya se encuentra registrado", excepcion.getErrores().get("numeroDocumento"));
+    }
+
+    @Test
     void debeBuscarUsuarioPorId() {
         UUID id = UUID.randomUUID();
         Usuario usuario = Usuario.builder()

@@ -10,4 +10,11 @@ import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 @Repository 
 public interface IUsuarioRepositorio extends JpaRepository<Usuario, UUID> {
 
+    boolean existsByEmail(String email);
+
+    boolean existsByNumeroDocumento(String numeroDocumento);
+
+    boolean existsByEmailAndIdNot(String email, UUID id);
+
+    boolean existsByNumeroDocumentoAndIdNot(String numeroDocumento, UUID id);
 }

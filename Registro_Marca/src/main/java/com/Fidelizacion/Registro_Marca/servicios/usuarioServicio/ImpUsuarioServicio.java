@@ -93,6 +93,22 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 			}
 		}
 
+		if (usuario.getEmail() != null && !errores.containsKey("email")) {
+			try {
+				validacion.validarEmailUnico(repositorioUsuario.existsByEmail(usuario.getEmail()));
+			} catch (ValidacionExcepcion ex) {
+				errores.put(ex.getCampo(), ex.getMessage());
+			}
+		}
+
+		if (usuario.getNumeroDocumento() != null && !errores.containsKey("numeroDocumento")) {
+			try {
+				validacion.validarNumeroDocumentoUnico(repositorioUsuario.existsByNumeroDocumento(usuario.getNumeroDocumento()));
+			} catch (ValidacionExcepcion ex) {
+				errores.put(ex.getCampo(), ex.getMessage());
+			}
+		}
+
 		if (!errores.isEmpty()) {
 			throw new ValidacionExcepcion(errores);
 		}
@@ -147,6 +163,14 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 			if (ex.getErrores() != null && !ex.getErrores().isEmpty()) {
 				errores.putAll(ex.getErrores());
 			} else if (ex.getCampo() != null) {
+				errores.put(ex.getCampo(), ex.getMessage());
+			}
+		}
+
+		if (usuarioExistente.getEmail() != null && !errores.containsKey("email")) {
+			try {
+				validacion.validarEmailUnico(repositorioUsuario.existsByEmailAndIdNot(usuarioExistente.getEmail(), id));
+			} catch (ValidacionExcepcion ex) {
 				errores.put(ex.getCampo(), ex.getMessage());
 			}
 		}

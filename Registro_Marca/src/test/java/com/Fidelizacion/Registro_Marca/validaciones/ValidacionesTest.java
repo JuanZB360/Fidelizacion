@@ -143,6 +143,9 @@ class ValidacionesTest {
     @Test
     void debeAceptarUbicacionValida() {
         assertDoesNotThrow(() -> ubicacionValidacion.validarDireccion("Calle 10#20-30"));
+        assertDoesNotThrow(() -> ubicacionValidacion.validarDireccion("Calle 10 # 20-30"));
+        assertDoesNotThrow(() -> ubicacionValidacion.validarDireccion("Carrera 15 # 45 - 20"));
+        assertDoesNotThrow(() -> ubicacionValidacion.validarDireccion("Cra. 7 No. 12-34"));
         assertDoesNotThrow(() -> ubicacionValidacion.validarCiudad("Bogotá"));
         assertDoesNotThrow(() -> ubicacionValidacion.validarDepartamento("Cundinamarca"));
         assertDoesNotThrow(() -> ubicacionValidacion.validarPais("Colombia"));
@@ -541,5 +544,35 @@ class ValidacionesTest {
         assertEquals(2, excepcion.getErrores().size());
         assertTrue(excepcion.getErrores().containsKey("nombre"));
         assertTrue(excepcion.getErrores().containsKey("abreviatura"));
+    }
+
+    @Test
+    void debeRechazarEmailDuplicado() {
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> usuarioValidacion.validarEmailUnico(true));
+
+        assertEquals("email", excepcion.getCampo());
+        assertEquals("El correo electrónico ya se encuentra registrado", excepcion.getMessage());
+    }
+
+    @Test
+    void debeAceptarEmailNoDuplicado() {
+        assertDoesNotThrow(() -> usuarioValidacion.validarEmailUnico(false));
+    }
+
+    @Test
+    void debeRechazarNumeroDocumentoDuplicado() {
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> usuarioValidacion.validarNumeroDocumentoUnico(true));
+
+        assertEquals("numeroDocumento", excepcion.getCampo());
+        assertEquals("El número de documento ya se encuentra registrado", excepcion.getMessage());
+    }
+
+    @Test
+    void debeAceptarNumeroDocumentoNoDuplicado() {
+        assertDoesNotThrow(() -> usuarioValidacion.validarNumeroDocumentoUnico(false));
     }
 }
