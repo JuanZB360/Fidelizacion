@@ -4,9 +4,9 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import com.Fidelizacion.Registro_Marca.DTOs.marcaDTOs.MarcaRequestDTO;
+import com.Fidelizacion.Registro_Marca.DTOs.tipoDocumentoDTOs.TipoDocumentoRequestDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.ubicacionDTOs.UbicacionRequestDTO;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(name = "UsuarioRequestCompletarInformacion", description = "Información personal para completar un usuario")
@@ -17,8 +17,8 @@ public record UsuarioRequestCompletarInformacioDTO(
     String nombre,
     @Schema(description = "Apellido del usuario", example = "García")
     String apellido,
-    @Schema(description = "Tipo de documento", example = "CC")
-    TipoDocumento tipoDocumento,
+    @Schema(description = "Tipo de documento existente")
+    TipoDocumentoRequestDTO tipoDocumento,
     @Schema(description = "Número de documento", example = "1234567890")
     String numeroDocumento,
     @Schema(description = "Fecha de nacimiento", example = "1995-06-15")
@@ -34,11 +34,11 @@ public record UsuarioRequestCompletarInformacioDTO(
         .id(id)
         .nombre(nombre)
         .apellido(apellido)
-        .tipoDocumento(tipoDocumento)
+        .tipoDocumento(tipoDocumento != null ? tipoDocumento.toEntity() : null)
         .numeroDocumento(numeroDocumento)
         .fechaNacimiento(fechaNacimiento)
-        .direccion(direccion.toEntity())
-        .marca(marca.toEntity())
+        .direccion(direccion != null ? direccion.toEntity() : null)
+        .marca(marca != null ? marca.toEntity() : null)
         .build();
     }
 

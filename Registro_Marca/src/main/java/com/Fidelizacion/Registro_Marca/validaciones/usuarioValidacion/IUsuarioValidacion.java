@@ -2,8 +2,8 @@ package com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion;
 
 import java.time.LocalDate;
 
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
 
 /*

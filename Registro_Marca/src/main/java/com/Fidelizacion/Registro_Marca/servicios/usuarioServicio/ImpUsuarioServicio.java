@@ -13,9 +13,11 @@ import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
+import com.Fidelizacion.Registro_Marca.repositorio.ITipoDocumentoRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUbicacionRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
 import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.IUsuarioValidacion;
@@ -28,6 +30,7 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
     private final IUsuarioRepositorio repositorioUsuario;
 	private final IMarcaRepositorio repositorioMarca;
+	private final ITipoDocumentoRepositorio repositorioTipoDocumento;
 	private final IUsuarioValidacion validacion;
 	private final IUbicacionRepositorio repositorioUbicacion;
 
@@ -50,6 +53,13 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
 		Marca marca = repositorioMarca.findById(informacion.marca().id()).orElseThrow(() -> new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida"));
 
+		if (informacion.tipoDocumento() == null || informacion.tipoDocumento().id() == null) {
+			throw new ValidacionExcepcion("tipoDocumento", "Debes seleccionar un tipo de documento válido");
+		}
+
+		TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(informacion.tipoDocumento().id())
+				.orElseThrow(() -> new ValidacionExcepcion("tipoDocumento", "Selecciona Un Tipo de Documento Valido"));
+
 		Ubicacion ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(informacion.direccion().direccion(), informacion.direccion().ciudad(), informacion.direccion().departamento(), informacion.direccion().pais()).orElse(null);
 
 		if(ubicacion == null){
@@ -58,7 +68,7 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
 		usuario.setNombre(informacion.nombre());
 		usuario.setApellido(informacion.apellido());
-		usuario.setTipoDocumento(informacion.tipoDocumento());
+		usuario.setTipoDocumento(tipoDocumento);
 		usuario.setNumeroDocumento(informacion.numeroDocumento());
 		usuario.setFechaNacimiento(informacion.fechaNacimiento());
 		usuario.setDireccion(ubicacion);
@@ -92,6 +102,12 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 				.orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado: " + id));
 
 		datos.toEntity(usuarioExistente);
+
+		if (datos.tipoDocumento() != null && datos.tipoDocumento().id() != null) {
+			TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id())
+					.orElseThrow(() -> new ValidacionExcepcion("tipoDocumento", "Selecciona Un Tipo de Documento Valido"));
+			usuarioExistente.setTipoDocumento(tipoDocumento);
+		}
 
 		validacion.validarActualizarUsuario(usuarioExistente);
 

@@ -3,7 +3,6 @@ package com.Fidelizacion.Registro_Marca.modelos;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -66,8 +65,9 @@ public class Usuario {
     @Builder.Default
     private Roles rol = Roles.CLIENTE;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_documento")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "tipo_documento_id")
+    @JsonBackReference(value = "TipoDocumentoUsuario")
     private TipoDocumento tipoDocumento;
 
     @Column(name = "numero_documento", unique = true)

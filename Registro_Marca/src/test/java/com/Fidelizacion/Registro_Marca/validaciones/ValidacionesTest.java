@@ -12,10 +12,11 @@ import org.junit.jupiter.api.Test;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 import com.Fidelizacion.Registro_Marca.modelos.Marca;
 import com.Fidelizacion.Registro_Marca.modelos.Ubicacion;
+import com.Fidelizacion.Registro_Marca.modelos.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.modelos.Usuario;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
-import com.Fidelizacion.Registro_Marca.utils.TipoDocumento;
 import com.Fidelizacion.Registro_Marca.validaciones.marcaValidacion.ImpMarcaValidacion;
+import com.Fidelizacion.Registro_Marca.validaciones.tipoDocumentoValidacion.ImpTipoDocumentoValidacion;
 import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.ImpUsuarioValidacion;
 import com.Fidelizacion.Registro_Marca.validaciones.ubicacionValidacion.ImpUbicacionValidacion;
 
@@ -24,12 +25,14 @@ class ValidacionesTest {
     private ImpUsuarioValidacion usuarioValidacion;
     private ImpMarcaValidacion marcaValidacion;
     private ImpUbicacionValidacion ubicacionValidacion;
+    private ImpTipoDocumentoValidacion tipoDocumentoValidacion;
 
     @BeforeEach
     void setUp() {
         marcaValidacion = new ImpMarcaValidacion();
         ubicacionValidacion = new ImpUbicacionValidacion();
-        usuarioValidacion = new ImpUsuarioValidacion(marcaValidacion, ubicacionValidacion);
+        tipoDocumentoValidacion = new ImpTipoDocumentoValidacion();
+        usuarioValidacion = new ImpUsuarioValidacion(marcaValidacion, ubicacionValidacion, tipoDocumentoValidacion);
     }
 
     @Test
@@ -48,7 +51,8 @@ class ValidacionesTest {
 
     @Test
     void debeAceptarTipoDocumentoYRolValidos() {
-        assertDoesNotThrow(() -> usuarioValidacion.validarIdentificacion(TipoDocumento.CC));
+        TipoDocumento tipoDoc = TipoDocumento.builder().nombre("Cédula de Ciudadanía").abreviatura("CC").build();
+        assertDoesNotThrow(() -> usuarioValidacion.validarIdentificacion(tipoDoc));
         assertDoesNotThrow(() -> usuarioValidacion.validarRol(Roles.CLIENTE));
     }
 
@@ -200,10 +204,14 @@ class ValidacionesTest {
                 .departamento("Cundinamarca")
                 .pais("Colombia")
                 .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
         Usuario usuario = Usuario.builder()
                 .nombre("Carlos")
                 .apellido("Pérez")
-                .tipoDocumento(TipoDocumento.CC)
+                .tipoDocumento(tipoDocumento)
                 .rol(Roles.CLIENTE)
                 .numeroDocumento("1234567890")
                 .fechaNacimiento(LocalDate.now().minusYears(20))
@@ -223,10 +231,14 @@ class ValidacionesTest {
                 .departamento("Cundinamarca")
                 .pais("Colombia")
                 .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
         Usuario usuario = Usuario.builder()
                 .nombre("Carlos")
                 .apellido("Pérez")
-                .tipoDocumento(TipoDocumento.CC)
+                .tipoDocumento(tipoDocumento)
                 .rol(Roles.CLIENTE)
                 .numeroDocumento("123")
                 .fechaNacimiento(LocalDate.now().minusYears(20))
@@ -236,6 +248,35 @@ class ValidacionesTest {
 
         assertThrows(ValidacionExcepcion.class,
                 () -> usuarioValidacion.validacionCompletarInformacion(usuario));
+    }
+
+    @Test
+    void debeValidarTipoDocumentoValido() {
+        TipoDocumento tipoDoc = TipoDocumento.builder()
+                .nombre("Cédula de Extranjería")
+                .abreviatura("CE")
+                .build();
+        assertDoesNotThrow(() -> tipoDocumentoValidacion.validarCreacionTipoDocumento(tipoDoc, false, false));
+    }
+
+    @Test
+    void debeRechazarTipoDocumentoConNombreDuplicado() {
+        TipoDocumento tipoDoc = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        assertThrows(ValidacionExcepcion.class,
+                () -> tipoDocumentoValidacion.validarCreacionTipoDocumento(tipoDoc, true, false));
+    }
+
+    @Test
+    void debeRechazarTipoDocumentoConAbreviaturaDuplicada() {
+        TipoDocumento tipoDoc = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        assertThrows(ValidacionExcepcion.class,
+                () -> tipoDocumentoValidacion.validarCreacionTipoDocumento(tipoDoc, false, true));
     }
 
     @Test
