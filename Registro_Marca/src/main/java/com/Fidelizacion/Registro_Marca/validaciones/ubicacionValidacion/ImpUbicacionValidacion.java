@@ -17,7 +17,7 @@ public class ImpUbicacionValidacion implements IUbicacionValidacion {
 
 		if (direccionLimpia == null
 				|| direccionLimpia.length() < 5
-				|| !direccionLimpia.matches("[\\p{L}0-9]+(?:[ .,#\\-/][\\p{L}0-9]+)*")) {
+				|| !direccionLimpia.matches("[\\p{L}0-9]+(?:[ .,#\\-/]+[\\p{L}0-9]+)*[.]?")) {
 			throw new ValidacionExcepcion(
 					"direccion",
 					"La dirección debe tener al menos 5 caracteres y un formato válido");

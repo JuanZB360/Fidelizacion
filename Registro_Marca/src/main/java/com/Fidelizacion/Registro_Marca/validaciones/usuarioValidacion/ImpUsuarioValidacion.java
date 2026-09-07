@@ -290,4 +290,22 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
         }
     }
 
+    @Override
+    public void validarEmailUnico(Boolean existeEmail) {
+        if (Boolean.TRUE.equals(existeEmail)) {
+            throw new ValidacionExcepcion(
+                    "email",
+                    "El correo electrónico ya se encuentra registrado");
+        }
+    }
+
+    @Override
+    public void validarNumeroDocumentoUnico(Boolean existeNumeroDocumento) {
+        if (Boolean.TRUE.equals(existeNumeroDocumento)) {
+            throw new ValidacionExcepcion(
+                    "numeroDocumento",
+                    "El número de documento ya se encuentra registrado");
+        }
+    }
+
 }

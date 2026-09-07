@@ -39,5 +39,7 @@ public interface IUsuarioValidacion {
     void validacionCompletarInformacion(Usuario usuario);
     void validarCreacionUsuario(Usuario usuario);
     void validarActualizarUsuario(Usuario usuario);
+    void validarEmailUnico(Boolean existeEmail);
+    void validarNumeroDocumentoUnico(Boolean existeNumeroDocumento);
 
 }

@@ -7,10 +7,14 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.Fidelizacion.Registro_Marca.DTOs.errorDTOs.ErrorResponseDTO;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestControllerAdvice
 public class ControladorExcepciones {
 
@@ -76,8 +80,20 @@ public class ControladorExcepciones {
         return ResponseEntity.status(status).body(error);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<ErrorResponseDTO> manejarNoResourceFound(NoResourceFoundException ex) {
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        ErrorResponseDTO error = ErrorResponseDTO.de(
+                status.value(),
+                status.getReasonPhrase(),
+                "El recurso solicitado no fue encontrado"
+        );
+        return ResponseEntity.status(status).body(error);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseDTO> manejarExcepcionGenerica(Exception ex) {
+        log.error("Error no controlado en el servidor: ", ex);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         ErrorResponseDTO error = ErrorResponseDTO.de(
                 status.value(),
