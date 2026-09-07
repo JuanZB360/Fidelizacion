@@ -1,6 +1,8 @@
 package com.Fidelizacion.Registro_Marca.servicios.usuarioServicio;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
@@ -36,35 +38,69 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 	@Transactional 
 	public UsuarioResponseCompleto crearUsuario(UsuarioRequestCrearDTO datos) {
 
+		Map<String, String> errores = new LinkedHashMap<>();
+
+		Marca marca = null;
 		if (datos.marca() == null || datos.marca().id() == null) {
-			throw new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida");
+			errores.put("marca", "Selecciona una marca válida");
+		} else {
+			marca = repositorioMarca.findById(datos.marca().id()).orElse(null);
+			if (marca == null) {
+				errores.put("marca", "Selecciona una marca válida");
+			}
 		}
-		Marca marca = repositorioMarca.findById(datos.marca().id())
-				.orElseThrow(() -> new ValidacionExcepcion("nombre", "Selecciona Una Marca Valida"));
 
+		TipoDocumento tipoDocumento = null;
 		if (datos.tipoDocumento() == null || datos.tipoDocumento().id() == null) {
-			throw new ValidacionExcepcion("tipoDocumento", "Debes seleccionar un tipo de documento válido");
+			errores.put("tipoDocumento", "Debes seleccionar un tipo de documento válido");
+		} else {
+			tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id()).orElse(null);
+			if (tipoDocumento == null) {
+				errores.put("tipoDocumento", "Selecciona un tipo de documento válido");
+			}
 		}
-		TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id())
-				.orElseThrow(() -> new ValidacionExcepcion("tipoDocumento", "Selecciona Un Tipo de Documento Valido"));
 
+		Ubicacion ubicacion = null;
 		if (datos.direccion() == null) {
-			throw new ValidacionExcepcion("direccion", "Debes proporcionar una ubicación válida");
-		}
-		Ubicacion ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
-				datos.direccion().direccion(), datos.direccion().ciudad(), datos.direccion().departamento(), datos.direccion().pais())
-				.orElse(null);
-
-		if (ubicacion == null) {
-			ubicacion = repositorioUbicacion.save(datos.direccion().toEntity());
+			errores.put("direccion", "Debes proporcionar una ubicación válida");
+		} else {
+			ubicacion = repositorioUbicacion.findByDireccionAndCiudadAndDepartamentoAndPais(
+					datos.direccion().direccion(), datos.direccion().ciudad(), datos.direccion().departamento(), datos.direccion().pais())
+					.orElse(null);
+			if (ubicacion == null) {
+				ubicacion = datos.direccion().toEntity();
+			}
 		}
 
 		Usuario usuario = datos.toEntity();
-		usuario.setMarca(marca);
-		usuario.setTipoDocumento(tipoDocumento);
-		usuario.setDireccion(ubicacion);
+		if (marca != null) {
+			usuario.setMarca(marca);
+		}
+		if (tipoDocumento != null) {
+			usuario.setTipoDocumento(tipoDocumento);
+		}
+		if (ubicacion != null) {
+			usuario.setDireccion(ubicacion);
+		}
 
-		validacion.validarCreacionUsuario(usuario);
+		try {
+			validacion.validarCreacionUsuario(usuario);
+		} catch (ValidacionExcepcion ex) {
+			if (ex.getErrores() != null && !ex.getErrores().isEmpty()) {
+				errores.putAll(ex.getErrores());
+			} else if (ex.getCampo() != null) {
+				errores.put(ex.getCampo(), ex.getMessage());
+			}
+		}
+
+		if (!errores.isEmpty()) {
+			throw new ValidacionExcepcion(errores);
+		}
+
+		if (ubicacion != null && ubicacion.getId() == null) {
+			ubicacion = repositorioUbicacion.save(ubicacion);
+			usuario.setDireccion(ubicacion);
+		}
 
 		repositorioUsuario.save(usuario);
 		return UsuarioResponseCompleto.fromEntity(usuario);
@@ -94,13 +130,30 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 
 		datos.toEntity(usuarioExistente);
 
+		Map<String, String> errores = new LinkedHashMap<>();
+
 		if (datos.tipoDocumento() != null && datos.tipoDocumento().id() != null) {
-			TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id())
-					.orElseThrow(() -> new ValidacionExcepcion("tipoDocumento", "Selecciona Un Tipo de Documento Valido"));
-			usuarioExistente.setTipoDocumento(tipoDocumento);
+			TipoDocumento tipoDocumento = repositorioTipoDocumento.findById(datos.tipoDocumento().id()).orElse(null);
+			if (tipoDocumento == null) {
+				errores.put("tipoDocumento", "Selecciona un tipo de documento válido");
+			} else {
+				usuarioExistente.setTipoDocumento(tipoDocumento);
+			}
 		}
 
-		validacion.validarActualizarUsuario(usuarioExistente);
+		try {
+			validacion.validarActualizarUsuario(usuarioExistente);
+		} catch (ValidacionExcepcion ex) {
+			if (ex.getErrores() != null && !ex.getErrores().isEmpty()) {
+				errores.putAll(ex.getErrores());
+			} else if (ex.getCampo() != null) {
+				errores.put(ex.getCampo(), ex.getMessage());
+			}
+		}
+
+		if (!errores.isEmpty()) {
+			throw new ValidacionExcepcion(errores);
+		}
 
 		repositorioUsuario.save(usuarioExistente);
 		return UsuarioResponseCompleto.fromEntity(usuarioExistente);

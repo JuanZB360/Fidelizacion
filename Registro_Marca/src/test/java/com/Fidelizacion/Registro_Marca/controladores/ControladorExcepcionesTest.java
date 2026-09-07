@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.Fidelizacion.Registro_Marca.controladores.ExcepcionControlador.ControladorExcepciones;
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
 
@@ -27,6 +30,14 @@ class ControladorExcepcionesTest {
         @GetMapping("/test/validacion")
         public void lanzarValidacion() {
             throw new ValidacionExcepcion("email", "El email ya está registrado");
+        }
+
+        @GetMapping("/test/validacion-multiple")
+        public void lanzarValidacionMultiple() {
+            Map<String, String> errores = new LinkedHashMap<>();
+            errores.put("nombre", "El nombre es obligatorio");
+            errores.put("email", "El email es obligatorio");
+            throw new ValidacionExcepcion(errores);
         }
 
         @GetMapping("/test/no-encontrado")
@@ -67,6 +78,18 @@ class ControladorExcepcionesTest {
                 .andExpect(jsonPath("$.error").value("Bad Request"))
                 .andExpect(jsonPath("$.mensaje").value("El email ya está registrado"))
                 .andExpect(jsonPath("$.campo").value("email"))
+                .andExpect(jsonPath("$.timestamp").exists());
+    }
+
+    @Test
+    void debeManejarValidacionExcepcionConMultiplesErroresComoBadRequest() throws Exception {
+        mockMvc.perform(get("/test/validacion-multiple"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.estado").value(400))
+                .andExpect(jsonPath("$.error").value("Bad Request"))
+                .andExpect(jsonPath("$.mensaje").value("Se encontraron 2 errores de validación"))
+                .andExpect(jsonPath("$.errores.nombre").value("El nombre es obligatorio"))
+                .andExpect(jsonPath("$.errores.email").value("El email es obligatorio"))
                 .andExpect(jsonPath("$.timestamp").exists());
     }
 

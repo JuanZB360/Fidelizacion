@@ -3,6 +3,7 @@ package com.Fidelizacion.Registro_Marca.validaciones;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 
@@ -47,6 +48,20 @@ class ValidacionesTest {
                 () -> usuarioValidacion.validarNombreApellido("Ana123"));
 
         assertEquals("nombre", excepcion.getCampo());
+    }
+
+    @Test
+    void debeAceptarApellidoConLetrasYEspacios() {
+        assertDoesNotThrow(() -> usuarioValidacion.validarApellido("Pérez Gómez"));
+    }
+
+    @Test
+    void debeRechazarApellidoConNumeros() {
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> usuarioValidacion.validarApellido("Pérez123"));
+
+        assertEquals("apellido", excepcion.getCampo());
     }
 
     @Test
@@ -106,9 +121,11 @@ class ValidacionesTest {
 
     @Test
     void debeRechazarContrasenaDebil() {
-        assertThrows(
+        ValidacionExcepcion excepcion = assertThrows(
                 ValidacionExcepcion.class,
                 () -> usuarioValidacion.validarContraseña("clave123"));
+
+        assertEquals("contrasena", excepcion.getCampo());
     }
 
     @Test
@@ -246,8 +263,96 @@ class ValidacionesTest {
                 .direccion(ubicacion)
                 .build();
 
-        assertThrows(ValidacionExcepcion.class,
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class,
                 () -> usuarioValidacion.validacionCompletarInformacion(usuario));
+        assertEquals("numeroDocumento", excepcion.getCampo());
+    }
+
+    @Test
+    void debeRechazarCompletarInformacionConApellidoInvalido() {
+        Marca marca = Marca.builder().nombre("Marca Central").build();
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("Calle 10#20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        Usuario usuario = Usuario.builder()
+                .nombre("Carlos")
+                .apellido("P1")
+                .tipoDocumento(tipoDocumento)
+                .rol(Roles.CLIENTE)
+                .numeroDocumento("1234567890")
+                .fechaNacimiento(LocalDate.now().minusYears(20))
+                .marca(marca)
+                .direccion(ubicacion)
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class,
+                () -> usuarioValidacion.validacionCompletarInformacion(usuario));
+        assertEquals("apellido", excepcion.getCampo());
+    }
+
+    @Test
+    void debeRechazarCompletarInformacionConMarcaInvalida() {
+        Marca marca = Marca.builder().nombre("1").build();
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("Calle 10#20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("Cédula de Ciudadanía")
+                .abreviatura("CC")
+                .build();
+        Usuario usuario = Usuario.builder()
+                .nombre("Carlos")
+                .apellido("Pérez")
+                .tipoDocumento(tipoDocumento)
+                .rol(Roles.CLIENTE)
+                .numeroDocumento("1234567890")
+                .fechaNacimiento(LocalDate.now().minusYears(20))
+                .marca(marca)
+                .direccion(ubicacion)
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class,
+                () -> usuarioValidacion.validacionCompletarInformacion(usuario));
+        assertEquals("marca", excepcion.getCampo());
+    }
+
+    @Test
+    void debeRechazarCompletarInformacionConTipoDocumentoInvalido() {
+        Marca marca = Marca.builder().nombre("Marca Central").build();
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("Calle 10#20-30")
+                .ciudad("Bogotá")
+                .departamento("Cundinamarca")
+                .pais("Colombia")
+                .build();
+        TipoDocumento tipoDocumento = TipoDocumento.builder()
+                .nombre("1")
+                .abreviatura("CC")
+                .build();
+        Usuario usuario = Usuario.builder()
+                .nombre("Carlos")
+                .apellido("Pérez")
+                .tipoDocumento(tipoDocumento)
+                .rol(Roles.CLIENTE)
+                .numeroDocumento("1234567890")
+                .fechaNacimiento(LocalDate.now().minusYears(20))
+                .marca(marca)
+                .direccion(ubicacion)
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(ValidacionExcepcion.class,
+                () -> usuarioValidacion.validacionCompletarInformacion(usuario));
+        assertEquals("tipoDocumento", excepcion.getCampo());
     }
 
     @Test
@@ -360,5 +465,81 @@ class ValidacionesTest {
 
         assertThrows(ValidacionExcepcion.class,
                 () -> usuarioValidacion.validarActualizarUsuario(usuario));
+    }
+
+    @Test
+    void debeAcumularMultiplesErroresEnValidacionLogin() {
+        Usuario usuario = Usuario.builder()
+                .email("correo-invalido")
+                .constrasena("123")
+                .rol(null)
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> usuarioValidacion.validacionLogin(usuario));
+
+        assertEquals(3, excepcion.getErrores().size());
+        assertTrue(excepcion.getErrores().containsKey("email"));
+        assertTrue(excepcion.getErrores().containsKey("contrasena"));
+        assertTrue(excepcion.getErrores().containsKey("rol"));
+    }
+
+    @Test
+    void debeAcumularMultiplesErroresEnValidacionCreacionUsuario() {
+        Usuario usuario = Usuario.builder()
+                .nombre("12")
+                .apellido("34")
+                .email("correo-invalido")
+                .constrasena("123")
+                .numeroDocumento("123")
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> usuarioValidacion.validarCreacionUsuario(usuario));
+
+        assertTrue(excepcion.getErrores().size() >= 5);
+        assertTrue(excepcion.getErrores().containsKey("nombre"));
+        assertTrue(excepcion.getErrores().containsKey("apellido"));
+        assertTrue(excepcion.getErrores().containsKey("email"));
+        assertTrue(excepcion.getErrores().containsKey("contrasena"));
+        assertTrue(excepcion.getErrores().containsKey("numeroDocumento"));
+    }
+
+    @Test
+    void debeAcumularMultiplesErroresEnValidacionUbicacion() {
+        Ubicacion ubicacion = Ubicacion.builder()
+                .direccion("A")
+                .ciudad("1")
+                .departamento("2")
+                .pais("3")
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> ubicacionValidacion.validarUbicacion(ubicacion));
+
+        assertEquals(4, excepcion.getErrores().size());
+        assertTrue(excepcion.getErrores().containsKey("direccion"));
+        assertTrue(excepcion.getErrores().containsKey("ciudad"));
+        assertTrue(excepcion.getErrores().containsKey("departamento"));
+        assertTrue(excepcion.getErrores().containsKey("pais"));
+    }
+
+    @Test
+    void debeAcumularMultiplesErroresEnValidacionTipoDocumento() {
+        TipoDocumento tipoDoc = TipoDocumento.builder()
+                .nombre("A")
+                .abreviatura("1")
+                .build();
+
+        ValidacionExcepcion excepcion = assertThrows(
+                ValidacionExcepcion.class,
+                () -> tipoDocumentoValidacion.validarTipoDocumento(tipoDoc));
+
+        assertEquals(2, excepcion.getErrores().size());
+        assertTrue(excepcion.getErrores().containsKey("nombre"));
+        assertTrue(excepcion.getErrores().containsKey("abreviatura"));
     }
 }

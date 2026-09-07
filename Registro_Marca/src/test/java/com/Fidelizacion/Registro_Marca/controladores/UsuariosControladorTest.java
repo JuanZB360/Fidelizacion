@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -25,11 +24,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestActualizarDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCompletarInformacioDTO;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestLoginDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioRequestCrearDTO;
 import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseCompleto;
-import com.Fidelizacion.Registro_Marca.DTOs.usuarioDTOs.UsuarioResponseLoginDTO;
 import com.Fidelizacion.Registro_Marca.controladores.UsuarioControlador.UsuariosControlador;
 import com.Fidelizacion.Registro_Marca.servicios.usuarioServicio.IUsuarioServicio;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
@@ -52,28 +48,6 @@ class UsuariosControladorTest {
 
     @Test
     void debeCrearUsuario() throws Exception {
-        UUID id = UUID.randomUUID();
-        when(usuarioServicio.crearUsuario(any(UsuarioRequestLoginDTO.class)))
-                .thenReturn(new UsuarioResponseLoginDTO(id, "ana@example.com", Roles.CLIENTE));
-
-        mockMvc.perform(post("/usuario")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                        {
-                            "email": "ana@example.com",
-                            "contrasena": "ClaveSegura1!"
-                        }
-                        """))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(id.toString()))
-                .andExpect(jsonPath("$.email").value("ana@example.com"))
-                .andExpect(jsonPath("$.rol").value("CLIENTE"));
-
-        verify(usuarioServicio).crearUsuario(any(UsuarioRequestLoginDTO.class));
-    }
-
-    @Test
-    void debeCompletarInformacion() throws Exception {
         UUID usuarioId = UUID.randomUUID();
         UUID marcaId = UUID.randomUUID();
         UUID tipoDocumentoId = UUID.randomUUID();
@@ -81,16 +55,13 @@ class UsuariosControladorTest {
                 usuarioId, "Carlos", "Pérez", "carlos@example.com",
                 Roles.CLIENTE, null, "1234567890", null, null, null);
 
-        when(usuarioServicio.completarInformacio(eq(usuarioId), any(UsuarioRequestCompletarInformacioDTO.class)))
         when(usuarioServicio.crearUsuario(any(UsuarioRequestCrearDTO.class)))
                 .thenReturn(respuesta);
 
-        mockMvc.perform(put("/usuario/{id}/informacion", usuarioId)
         mockMvc.perform(post("/usuario")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                         {
-                            "id": "%s",
                             "nombre": "Carlos",
                             "apellido": "Pérez",
                             "email": "carlos@example.com",
@@ -111,7 +82,6 @@ class UsuariosControladorTest {
                                 "id": "%s"
                             }
                         }
-                        """.formatted(usuarioId, tipoDocumentoId, marcaId)))
                         """.formatted(tipoDocumentoId, marcaId)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(usuarioId.toString()))
@@ -119,7 +89,6 @@ class UsuariosControladorTest {
                 .andExpect(jsonPath("$.email").value("carlos@example.com"))
                 .andExpect(jsonPath("$.numeroDocumento").value("1234567890"));
 
-        verify(usuarioServicio).completarInformacio(eq(usuarioId), any(UsuarioRequestCompletarInformacioDTO.class));
         verify(usuarioServicio).crearUsuario(any(UsuarioRequestCrearDTO.class));
     }
 
@@ -177,4 +146,3 @@ class UsuariosControladorTest {
         verify(usuarioServicio).actualuzarUsuario(eq(id), any(UsuarioRequestActualizarDTO.class));
     }
 }
-
