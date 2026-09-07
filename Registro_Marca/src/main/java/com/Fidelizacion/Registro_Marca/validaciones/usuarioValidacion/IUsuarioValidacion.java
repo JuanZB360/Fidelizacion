@@ -21,13 +21,20 @@ import com.Fidelizacion.Registro_Marca.utils.Roles;
 
 public interface IUsuarioValidacion {
 
-    void validarNombreApellido(String nombreApellido);
+    void validarNombre(String nombre);
+    default void validarNombreApellido(String nombre) {
+        validarNombre(nombre);
+    }
+    void validarApellido(String apellido);
     void validarIdentificacion(TipoDocumento tipoDocumento);
     void validarRol(Roles rol);
     void validarNumeroIdentificacion(String numeroIdentificacion);
     void validarFechaNacimiento(LocalDate fechaNacimiento);
     void validarEmail(String email);
     void validarContraseña(String contraseña);
+    default void validarContrasena(String contrasena) {
+        validarContraseña(contrasena);
+    }
     void validacionLogin(Usuario usuario);
     void validacionCompletarInformacion(Usuario usuario);
     void validarCreacionUsuario(Usuario usuario);

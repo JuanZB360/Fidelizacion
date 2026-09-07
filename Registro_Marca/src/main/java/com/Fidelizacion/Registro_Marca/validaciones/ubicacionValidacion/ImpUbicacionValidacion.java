@@ -1,5 +1,8 @@
 package com.Fidelizacion.Registro_Marca.validaciones.ubicacionValidacion;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
@@ -50,10 +53,33 @@ public class ImpUbicacionValidacion implements IUbicacionValidacion {
 
     @Override
     public void validarUbicacion(Ubicacion ubicacion) {
-        validarDireccion(ubicacion.getDireccion());
-        validarCiudad(ubicacion.getCiudad());
-        validarDepartamento(ubicacion.getDepartamento());
-        validarPais(ubicacion.getPais());
+        if (ubicacion == null) {
+            throw new ValidacionExcepcion("direccion", "Debes proporcionar una ubicación válida");
+        }
+        Map<String, String> errores = new LinkedHashMap<>();
+        try {
+            validarDireccion(ubicacion.getDireccion());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarCiudad(ubicacion.getCiudad());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarDepartamento(ubicacion.getDepartamento());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarPais(ubicacion.getPais());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
+        }
     }
 
 }

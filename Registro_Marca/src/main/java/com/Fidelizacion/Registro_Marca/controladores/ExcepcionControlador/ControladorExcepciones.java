@@ -21,7 +21,8 @@ public class ControladorExcepciones {
                 status.value(),
                 status.getReasonPhrase(),
                 ex.getMessage(),
-                ex.getCampo()
+                ex.getCampo(),
+                ex.getErrores()
         );
         return ResponseEntity.status(status).body(error);
     }
@@ -44,15 +45,22 @@ public class ControladorExcepciones {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> manejarMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         HttpStatus status = HttpStatus.BAD_REQUEST;
-        FieldError fieldError = ex.getBindingResult().getFieldError();
-        String campo = fieldError != null ? fieldError.getField() : null;
-        String mensaje = fieldError != null ? fieldError.getDefaultMessage() : "Error de validación en la solicitud";
+        java.util.Map<String, String> errores = new java.util.LinkedHashMap<>();
+        for (FieldError fieldError : ex.getBindingResult().getFieldErrors()) {
+            errores.putIfAbsent(fieldError.getField(), fieldError.getDefaultMessage());
+        }
+
+        String primerCampo = errores.isEmpty() ? null : errores.keySet().iterator().next();
+        String mensaje = errores.size() > 1
+                ? "Se encontraron " + errores.size() + " errores de validación en la solicitud"
+                : (errores.isEmpty() ? "Error de validación en la solicitud" : errores.values().iterator().next());
 
         ErrorResponseDTO error = ErrorResponseDTO.de(
                 status.value(),
                 status.getReasonPhrase(),
                 mensaje,
-                campo
+                primerCampo,
+                errores
         );
         return ResponseEntity.status(status).body(error);
     }

@@ -1,6 +1,8 @@
 package com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion;
 
 import java.time.LocalDate;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.stereotype.Component;
 
@@ -23,20 +25,33 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
     private final ImpTipoDocumentoValidacion validacionTipoDocumento;
 
     @Override
-    public void validarNombreApellido(String nombreApellido) {
-        // si el nombre es null pasa como nulo sino se eliminan los espacios al inicio y
-        // final
-        String nombreLimpio = nombreApellido == null ? null : nombreApellido.trim();
+    public void validarNombre(String nombre) {
+        String nombreLimpio = nombre == null ? null : nombre.trim();
 
-        // se realiza una condicion para lanzar una excepcion que solo salta si el
-        // nombre es nulo,
-        // tiene una longitud menor a 3 o contiene numeros
         if (nombreLimpio == null
                 || nombreLimpio.length() <= 2
                 || !nombreLimpio.matches("\\p{L}+(?:\\s+\\p{L}+)*")) {
             throw new ValidacionExcepcion(
                     "nombre",
                     "El nombre debe tener al menos 3 letras y solo puede contener letras y espacios");
+        }
+    }
+
+    @Override
+    public void validarNombreApellido(String nombre) {
+        validarNombre(nombre);
+    }
+
+    @Override
+    public void validarApellido(String apellido) {
+        String apellidoLimpio = apellido == null ? null : apellido.trim();
+
+        if (apellidoLimpio == null
+                || apellidoLimpio.length() <= 2
+                || !apellidoLimpio.matches("\\p{L}+(?:\\s+\\p{L}+)*")) {
+            throw new ValidacionExcepcion(
+                    "apellido",
+                    "El apellido debe tener al menos 3 letras y solo puede contener letras y espacios");
         }
     }
 
@@ -107,67 +122,171 @@ public class ImpUsuarioValidacion implements IUsuarioValidacion {
         if (contrasena == null
                 || !contrasena.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d])\\S{8,}$")) {
             throw new ValidacionExcepcion(
-                    "contraseña",
+                    "contrasena",
                     "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial");
+        }
+    }
+
+    public void acumularErroresLogin(Usuario usuario, Map<String, String> errores) {
+        if (usuario == null) {
+            errores.put("usuario", "El usuario no puede ser nulo");
+            return;
+        }
+        try {
+            validarEmail(usuario.getEmail());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarContraseña(usuario.getConstrasena());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarRol(usuario.getRol());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+    }
+
+    public void acumularErroresCompletarInformacion(Usuario usuario, Map<String, String> errores) {
+        if (usuario == null) {
+            errores.put("usuario", "El usuario no puede ser nulo");
+            return;
+        }
+        try {
+            validarNombre(usuario.getNombre());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarApellido(usuario.getApellido());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarIdentificacion(usuario.getTipoDocumento());
+            if (usuario.getTipoDocumento() != null && usuario.getTipoDocumento().getNombre() != null) {
+                validacionTipoDocumento.validarNombre(usuario.getTipoDocumento().getNombre());
+            }
+        } catch (ValidacionExcepcion ex) {
+            errores.put("tipoDocumento", ex.getMessage());
+        }
+        try {
+            validarRol(usuario.getRol());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarNumeroIdentificacion(usuario.getNumeroDocumento());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarFechaNacimiento(usuario.getFechaNacimiento());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            if (usuario.getMarca() == null) {
+                throw new ValidacionExcepcion("marca", "Debes seleccionar una marca válida");
+            }
+            if (usuario.getMarca().getNombre() != null) {
+                validacionMarca.validarNombreMarca(usuario.getMarca().getNombre());
+            }
+        } catch (ValidacionExcepcion ex) {
+            errores.put("marca", ex.getMessage());
+        }
+        try {
+            validacionUbicacion.validarUbicacion(usuario.getDireccion());
+        } catch (ValidacionExcepcion ex) {
+            if (ex.getErrores() != null && !ex.getErrores().isEmpty()) {
+                errores.putAll(ex.getErrores());
+            } else if (ex.getCampo() != null) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
         }
     }
 
     @Override
     public void validacionLogin(Usuario usuario) {
-
-        validarEmail(usuario.getEmail());
-        validarContraseña(usuario.getConstrasena());
-        validarRol(usuario.getRol());
-
+        Map<String, String> errores = new LinkedHashMap<>();
+        acumularErroresLogin(usuario, errores);
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
+        }
     }
 
     @Override
     public void validacionCompletarInformacion(Usuario usuario) {
-
-        validarNombreApellido(usuario.getNombre());
-        validarNombreApellido(usuario.getApellido());
-        validarIdentificacion(usuario.getTipoDocumento());
-        validarRol(usuario.getRol());
-        validarNumeroIdentificacion(usuario.getNumeroDocumento());
-        validarFechaNacimiento(usuario.getFechaNacimiento());
-        if (usuario.getTipoDocumento() != null && usuario.getTipoDocumento().getNombre() != null) {
-            validacionTipoDocumento.validarNombre(usuario.getTipoDocumento().getNombre());
+        Map<String, String> errores = new LinkedHashMap<>();
+        acumularErroresCompletarInformacion(usuario, errores);
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
         }
-        validacionMarca.validarNombreMarca(usuario.getMarca().getNombre());
-        validacionUbicacion.validarUbicacion(usuario.getDireccion());
-
     }
 
     @Override
     public void validarCreacionUsuario(Usuario usuario) {
-        validacionLogin(usuario);
-        validacionCompletarInformacion(usuario);
+        Map<String, String> errores = new LinkedHashMap<>();
+        acumularErroresLogin(usuario, errores);
+        acumularErroresCompletarInformacion(usuario, errores);
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
+        }
     }
 
     @Override
     public void validarActualizarUsuario(Usuario usuario) {
-        validarRol(usuario.getRol());
+        Map<String, String> errores = new LinkedHashMap<>();
+        try {
+            validarRol(usuario.getRol());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+
         if (usuario.getEmail() != null) {
-            validarEmail(usuario.getEmail());
+            try {
+                validarEmail(usuario.getEmail());
+            } catch (ValidacionExcepcion ex) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
         }
 
         if (usuario.getConstrasena() != null) {
-            validarContraseña(usuario.getConstrasena());
+            try {
+                validarContraseña(usuario.getConstrasena());
+            } catch (ValidacionExcepcion ex) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
         }
 
         if (usuario.getTipoDocumento() != null && usuario.getTipoDocumento().getNombre() != null) {
-            validacionTipoDocumento.validarNombre(
-                    usuario.getTipoDocumento().getNombre());
+            try {
+                validacionTipoDocumento.validarNombre(usuario.getTipoDocumento().getNombre());
+            } catch (ValidacionExcepcion e) {
+                errores.put("tipoDocumento", e.getMessage());
+            }
         }
 
-        if (usuario.getMarca() != null) {
-            validacionMarca.validarNombreMarca(
-                    usuario.getMarca().getNombre());
+        if (usuario.getMarca() != null && usuario.getMarca().getNombre() != null) {
+            try {
+                validacionMarca.validarNombreMarca(usuario.getMarca().getNombre());
+            } catch (ValidacionExcepcion e) {
+                errores.put("marca", e.getMessage());
+            }
         }
 
         if (usuario.getDireccion() != null) {
-            validacionUbicacion.validarUbicacion(
-                    usuario.getDireccion());
+            try {
+                validacionUbicacion.validarUbicacion(usuario.getDireccion());
+            } catch (ValidacionExcepcion ex) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
+        }
+
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
         }
     }
 

@@ -1,5 +1,8 @@
 package com.Fidelizacion.Registro_Marca.validaciones.tipoDocumentoValidacion;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Component;
 
 import com.Fidelizacion.Registro_Marca.exepciones.ValidacionExcepcion;
@@ -58,10 +61,34 @@ public class ImpTipoDocumentoValidacion implements ITipoDocumentoValidacion {
         if (tipoDocumento == null) {
             throw new ValidacionExcepcion("tipoDocumento", "El tipo de documento no puede ser nulo");
         }
-        validarNombre(tipoDocumento.getNombre());
-        validarAbreviatura(tipoDocumento.getAbreviatura());
-        validarQueNombreSeaUnico(existeNombre);
-        validarQueAbreviaturaSeaUnica(existeAbreviatura);
+        Map<String, String> errores = new LinkedHashMap<>();
+        try {
+            validarNombre(tipoDocumento.getNombre());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarAbreviatura(tipoDocumento.getAbreviatura());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        if (!errores.containsKey("nombre")) {
+            try {
+                validarQueNombreSeaUnico(existeNombre);
+            } catch (ValidacionExcepcion ex) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
+        }
+        if (!errores.containsKey("abreviatura")) {
+            try {
+                validarQueAbreviaturaSeaUnica(existeAbreviatura);
+            } catch (ValidacionExcepcion ex) {
+                errores.put(ex.getCampo(), ex.getMessage());
+            }
+        }
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
+        }
     }
 
     @Override
@@ -69,8 +96,20 @@ public class ImpTipoDocumentoValidacion implements ITipoDocumentoValidacion {
         if (tipoDocumento == null) {
             throw new ValidacionExcepcion("tipoDocumento", "Debes seleccionar un tipo de documento válido");
         }
-        validarNombre(tipoDocumento.getNombre());
-        validarAbreviatura(tipoDocumento.getAbreviatura());
+        Map<String, String> errores = new LinkedHashMap<>();
+        try {
+            validarNombre(tipoDocumento.getNombre());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        try {
+            validarAbreviatura(tipoDocumento.getAbreviatura());
+        } catch (ValidacionExcepcion ex) {
+            errores.put(ex.getCampo(), ex.getMessage());
+        }
+        if (!errores.isEmpty()) {
+            throw new ValidacionExcepcion(errores);
+        }
     }
 
 }
