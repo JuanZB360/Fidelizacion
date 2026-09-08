@@ -33,6 +33,7 @@ import com.Fidelizacion.Registro_Marca.repositorio.IMarcaRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.ITipoDocumentoRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUbicacionRepositorio;
 import com.Fidelizacion.Registro_Marca.repositorio.IUsuarioRepositorio;
+import com.Fidelizacion.Registro_Marca.servicios.emailServicio.IEmailServicio;
 import com.Fidelizacion.Registro_Marca.servicios.usuarioServicio.ImpUsuarioServicio;
 import com.Fidelizacion.Registro_Marca.utils.Roles;
 import com.Fidelizacion.Registro_Marca.validaciones.usuarioValidacion.IUsuarioValidacion;
@@ -55,11 +56,14 @@ class UsuarioServicioTest {
     @Mock
     private IUbicacionRepositorio repositorioUbicacion;
 
+    @Mock
+    private IEmailServicio emailServicio;
+
     private ImpUsuarioServicio servicio;
 
     @BeforeEach
     void setUp() {
-        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, repositorioTipoDocumento, validacion, repositorioUbicacion);
+        servicio = new ImpUsuarioServicio(repositorioUsuario, repositorioMarca, repositorioTipoDocumento, validacion, repositorioUbicacion, emailServicio);
     }
 
     @Test
