@@ -37,5 +37,6 @@ data/
 *.db
 *.trace.db
 
+# Variables de entorno y secretos
 .env
 *.env
