@@ -1,6 +1,43 @@
-# 🎁 Sistema de Fidelización - Registro de Clientes & Marcas
+<div align="center">
 
-Frontend para la plataforma de fidelización de clientes de marcas aliadas (*American Eagle*, *Americanino*, *Chevignon*, *Esprit*, *NAF NAF*, *Rifle*). Esta aplicación permite a los usuarios conocer las marcas asociadas, explorar los beneficios del club y registrarse en el sistema acumulador de puntos mediante un formulario reactivo con validaciones avanzadas e integración geográfica en cascada.
+# ⚛️ Frontend - Club de Fidelización & Recompensas Multi-Marca
+
+> **Aplicación cliente SPA (Single Page Application) desarrollada con React 19, Vite y Tailwind CSS 4 para la interacción, consulta y registro de clientes en marcas comerciales asociadas.**
+
+[![React](https://img.shields.io/badge/React-19-blue?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Axios](https://img.shields.io/badge/Axios-1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white)](https://axios-http.com/)
+[![Lucide](https://img.shields.io/badge/Lucide_Icons-1.x-F05032?style=for-the-badge&logo=lucide&logoColor=white)](https://lucide.dev/)
+
+---
+
+### 🧭 Navegación entre Módulos
+**[⬅️ Volver al README Principal](../README.md)** &nbsp;|&nbsp; **[☕ Ver Documentación del Backend (Spring Boot)](../Registro_Marca/README.md)**
+
+---
+
+</div>
+
+## 📑 Tabla de Contenidos
+
+- [📌 Descripción del Frontend](#-descripción-del-frontend)
+- [🚀 Tecnologías Principales](#-tecnologías-principales)
+- [✨ Características y Funcionalidades](#-características-y-funcionalidades)
+- [📁 Estructura del Proyecto](#-estructura-del-proyecto)
+- [🔌 Integración con el Backend y Servicios](#-integración-con-el-backend-y-servicios)
+- [⚙️ Variables de Entorno](#️-variables-de-entorno)
+- [🛠️ Instalación y Ejecución Local](#️-instalación-y-ejecución-local)
+- [👥 Marcas Aliadas Oficiales](#-marcas-aliadas-oficiales)
+- [👨‍💻 Autor](#-autor)
+
+---
+
+## 📌 Descripción del Frontend
+
+Esta aplicación constituye la interfaz de usuario de la plataforma **Club de Fidelización & Recompensas Multi-Marca**. Permite a los clientes conocer las marcas aliadas (*American Eagle, Americanino, Chevignon, Esprit, NAF NAF, Rifle*), explorar las recompensas por compras y afiliarse al programa mediante un formulario reactivo con validaciones avanzadas en tiempo real y selectores geográficos en cascada.
+
+La aplicación consume de manera directa y desacoplada la **API REST del Backend (Spring Boot)** ubicada en `http://localhost:8080/`.
 
 ---
 
@@ -8,52 +45,48 @@ Frontend para la plataforma de fidelización de clientes de marcas aliadas (*Ame
 
 | Tecnología | Versión | Propósito |
 | :--- | :--- | :--- |
-| **[React](https://react.dev/)** | `^19.2.8` | Biblioteca base para la construcción de interfaces de usuario declarativas |
-| **[Vite](https://vitejs.dev/)** | `^8.2.2` | Entorno de desarrollo rápido y empaquetador de producción |
-| **[Tailwind CSS](https://tailwindcss.com/)** | `^4.3.3` | Framework de estilos utilitarios con `@tailwindcss/vite` |
-| **[React Router DOM](https://reactrouter.com/)** | `^7.18.3` | Gestión de rutas, navegación y modales contextuales (`backgroundLocation`) |
-| **[Axios](https://axios-http.com/)** | `^1.20.0` | Cliente HTTP para consumo de APIs con interceptores JWT |
+| **[React](https://react.dev/)** | `^19.2.8` | Biblioteca base para interfaces de usuario reactivas y modulares |
+| **[Vite](https://vitejs.dev/)** | `^6.x / ^8.x` | Servidor de desarrollo con Hot Module Replacement (HMR) ultra rápido |
+| **[Tailwind CSS](https://tailwindcss.com/)** | `^4.3.3` | Framework de diseño utilitario integrado vía `@tailwindcss/vite` |
+| **[React Router DOM](https://reactrouter.com/)** | `^7.18.3` | Gestión de rutas, navegación y modales en ruta contextual (`backgroundLocation`) |
+| **[Axios](https://axios-http.com/)** | `^1.20.0` | Cliente HTTP centralizado para peticiones a la API con interceptores |
 | **[Lucide React](https://lucide.dev/)** | `^1.41.0` | Iconografía vectorizada moderna |
-| **[Oxlint](https://oxc.rs/)** | `^1.79.0` | Linter de alto rendimiento para JavaScript/JSX |
+| **[Oxlint](https://oxc.rs/)** | `^1.79.0` | Linter de alto rendimiento para validación estática de código JSX |
 
 ---
 
 ## ✨ Características y Funcionalidades
 
 ### 1. Navegación Dinámica y Responsiva
-- **TopBar Corporativa**: Mensajes promocionales e informativos sobre el club de beneficios.
+- **TopBar Corporativa**: Notificaciones de promociones y beneficios del club.
 - **Header con Mega Menús**:
-  - **Beneficios**: Desglose interactivo de ventajas (*Puntos por compras, descuentos exclusivos, regalos de cumpleaños, experiencias VIP*).
-  - **Marcas Aliadas**: Visualización con logotipos oficiales en cuadrícula interactiva.
-- **Menú Móvil Lateral (Drawer)**:
-  - Navegación táctil optimizada con diseño drawer y acordeones expandibles para categorías y marcas.
+  - **Beneficios**: Desglose visual de incentivos (*Puntos por compras, descuentos exclusivos, regalo de cumpleaños, experiencias VIP*).
+  - **Marcas Aliadas**: Visualización en cuadrícula interactiva con los logotipos oficiales.
+- **Menú Móvil Lateral (Drawer)**: Navegación táctil optimizada con diseño drawer y acordeones para pantallas pequeñas.
 
 ### 2. Modal de Registro en Ruta (`backgroundLocation`)
-- Implementación de ruta flotante `/registro` sobre la ruta actual (`/inicio`), manteniendo el contexto visual mediante el estado `location.state.backgroundLocation`.
-- Bloqueo dinámico del scroll en el elemento `body` al abrir el modal, con compensación automática del ancho de la barra de desplazamiento.
+- Ruta flotante `/registro` sobre la pantalla actual (`/inicio`), manteniendo intacto el fondo visual mediante `location.state.backgroundLocation`.
+- Bloqueo dinámico del scroll en el elemento `body` al desplegar el formulario, evitando saltos de desplazamiento.
 
-### 3. Formulario de Registro Integral
-- **Datos Personales**: Campos para nombre y apellido con validación en tiempo real.
-- **Documento de Identidad**:
-  - Selector dinámico de tipos de documento obtenidos desde el backend.
-  - Validación de número de identificación.
-- **Fecha de Nacimiento**:
-  - Máscara y formateo automático dinámico al escribir (`dd/mm/aaaa`).
+### 3. Formulario de Registro Integral y Reactivo
+- **Datos Personales**: Nombre y apellido con validación tipográfica instantánea.
+- **Documento de Identidad**: Selector dinámico poblado desde la API del backend (`GET /tipo-documento`) y campo de número con validación de unicidad.
+- **Fecha de Nacimiento con Validación Estricta**:
+  - Máscara dinámica al escribir (`dd/mm/aaaa`).
   - Validación de coherencia de días según el mes y año (calendario gregoriano).
-  - Comprobación estricta de mayoría de edad (mínimo 18 años requeridos).
-  - Conversión automática al formato ISO (`yyyy-mm-dd`) para el consumo del backend.
-- **Credenciales y Marca Favorita**:
-  - Captura segura de correo electrónico y contraseña.
-  - Asociación obligatoria a una de las marcas aliadas del programa.
+  - Comprobación automática de mayoría de edad (+18 años).
+  - Conversión transparente a formato ISO (`yyyy-mm-dd`) al enviar a la API.
+- **Credenciales y Marca Preferida**:
+  - Contraseña segura y correo electrónico.
+  - Selección de la marca comercial favorita desde el catálogo dinámico (`GET /marca`).
 - **Ubicación Geográfica en Cascada**:
   - Selectores dependientes: **País → Departamento / Estado → Ciudad**.
-  - Conexión con servicio geográfico externo y limpieza automática en cadena ante cambios de selección previa.
-  - Campo de dirección de residencia.
+  - Integración con API geográfica externa y reseteo automático en cadena ante cambios de selección.
 
-### 4. Manejo Robusto de Errores y Estados
-- Retroalimentación de estados de carga (`loading`) con animaciones.
-- Confirmación visual de éxito y redirección automática tras completar el registro.
-- Captura, mapeo y renderizado granular de errores devueltos por el backend (por campo específico o alerta global).
+### 4. Manejo Granular de Respuestas y Errores
+- Feedback de estados de carga (`loading`) con spinners visuales.
+- Mensajes de confirmación y redirección tras el registro exitoso.
+- Mapeo automático de los errores del backend (`ErrorResponseDTO`) directamente sobre cada campo infractor del formulario.
 
 ---
 
@@ -61,114 +94,113 @@ Frontend para la plataforma de fidelización de clientes de marcas aliadas (*Ame
 
 ```text
 registromarca/
-├── public/                     # Archivos estáticos y favicon
+├── public/                     # Recursos estáticos y favicons
 ├── src/
-│   ├── assets/                 # Recursos multimedia (imágenes, logos de marcas aliadas)
-│   │   ├── fondoInicio/        # Fondos para la sección hero
-│   │   └── marcasAliadas/      # SVGs de logotipos oficiales
-│   ├── components/             # Componentes reutilizables
-│   │   ├── form/               # Elementos de formulario estilizados
-│   │   │   ├── InputComponenet.jsx   # Input con soporte de errores y accesibilidad
-│   │   │   └── SelectComponent.jsx   # Select personalizado con icono y opciones dinámicas
-│   │   ├── header/             # Subcomponentes del encabezado
-│   │   │   ├── MobileDrawer.jsx      # Menú móvil lateral con acordeones
-│   │   │   └── TopBar.jsx            # Barra informativa superior
-│   │   ├── BeneficiosMenu.jsx  # Mega menú de recompensas y beneficios
-│   │   ├── LinkButton.jsx      # Enlace estéticamente estilizado como botón
-│   │   └── MarcasAliadasMenu.jsx # Mega menú con listado de marcas aliadas
+│   ├── assets/                 # Imágenes, banners hero y logos de marcas aliadas
+│   │   ├── fondoInicio/        # Fotografías hero para la portada
+│   │   └── marcasAliadas/      # SVGs oficiales de las marcas
+│   ├── components/             # Componentes modulares
+│   │   ├── form/               # Elementos de formulario
+│   │   │   ├── InputComponenet.jsx   # Input accesible con soporte de errores
+│   │   │   └── SelectComponent.jsx   # Select estilizado con iconos dinámicos
+│   │   ├── header/             # Encabezado de la página
+│   │   │   ├── MobileDrawer.jsx      # Drawer lateral móvil
+│   │   │   └── TopBar.jsx            # Barra superior de anuncios
+│   │   ├── BeneficiosMenu.jsx  # Mega menú de recompensas
+│   │   ├── LinkButton.jsx      # Enlace estilizado con apariencia de botón
+│   │   └── MarcasAliadasMenu.jsx # Mega menú de marcas
 │   ├── layouts/
-│   │   └── LayoutHeader.jsx    # Plantilla principal con Header sticky y Outlet
+│   │   └── LayoutHeader.jsx    # Layout con Header sticky y Outlet
 │   ├── pages/
-│   │   ├── HomePage.jsx        # Landing page con Hero y tarjetas de propuesta de valor
-│   │   └── RegistroPage.jsx    # Modal de registro con formulario y validaciones
+│   │   ├── HomePage.jsx        # Landing page principal
+│   │   └── RegistroPage.jsx    # Modal de registro con validaciones
 │   ├── routes/
-│   │   └── RoutesApp.Route.jsx # Definición de rutas y soporte de modal contextual
+│   │   └── RoutesApp.Route.jsx # Definición de rutas y soporte backgroundLocation
 │   ├── services/
-│   │   ├── apiBack.js          # Instancia centralizada de Axios e interceptores
-│   │   ├── marcaService.js     # Consumo de endpoints de marcas aliadas
-│   │   ├── tipoDocumentoService.js # Consumo de catálogo de tipos de documento
-│   │   ├── ubicacionService.js # Integración con API geográfica externa y endpoints de ubicación
-│   │   └── usuarioService.js   # Registro, consulta y actualización de usuarios
-│   ├── App.css                 # Estilos globales de la aplicación
-│   ├── App.jsx                 # Componente contenedor de la aplicación
-│   ├── index.css               # Importaciones base de Tailwind CSS v4
-│   └── main.jsx                # Punto de entrada de React con BrowserRouter
+│   │   ├── apiBack.js          # Configuración base de Axios e interceptores
+│   │   ├── marcaService.js     # Consumo de endpoints de marcas
+│   │   ├── tipoDocumentoService.js # Consumo de tipos de documento
+│   │   ├── ubicacionService.js # Consumo de API geográfica y ubicaciones
+│   │   └── usuarioService.js   # Peticiones de creación de usuario
+│   ├── App.css                 # Estilos específicos de componentes
+│   ├── App.jsx                 # Componente raíz
+│   ├── index.css               # Directivas utilitarias de Tailwind CSS v4
+│   └── main.jsx                # Punto de anclaje de React en el DOM
 ├── .env                        # Variables de entorno locales
-├── .oxlintrc.json              # Configuración de reglas para Oxlint
-├── index.html                  # Plantilla HTML base del proyecto
-├── package.json                # Dependencias y scripts de ejecución
+├── .oxlintrc.json              # Configuración del linter Oxlint
+├── index.html                  # Plantilla HTML inicial
+├── package.json                # Dependencias y scripts
 └── vite.config.js              # Configuración de Vite y plugins
 ```
 
 ---
 
-## 🔌 Servicios y APIs
+## 🔌 Integración con el Backend y Servicios
 
-### 1. Backend Propio (`apiBack.js`)
-Configuración centralizada de Axios con URL base configurable y tiempo de respuesta límite:
-- **Interceptor de Peticiones**: Inyecta de manera automática el token JWT desde `localStorage.getItem('token')` en la cabecera `Authorization: Bearer <token>`.
-- **Interceptor de Respuestas**: Intercepta respuestas con estado `401 Unauthorized` para invalidar la sesión y limpiar el almacenamiento local.
+### 1. API Backend Propia (`apiBack.js`)
+Configuración centralizada de Axios que apunta al backend en Spring Boot (`http://localhost:8080/`):
+- **Interceptor de Peticiones**: Inyecta el token de autenticación (si existe) en las cabeceras.
+- **Interceptor de Respuestas**: Detecta errores de validación y estados `401 Unauthorized`.
 
-**Endpoints utilizados:**
-- `GET /marca`: Consulta las marcas activas vinculadas al programa.
-- `GET /tipo-documento`: Consulta los tipos de documento habilitados.
-- `POST /usuario`: Registra un nuevo usuario asociando su marca, tipo de documento y dirección.
-- `GET /ubicacion` y `POST /ubicacion`: Consulta y guardado de direcciones.
+> [!NOTE]
+> La base de datos del backend comenzó operando en **H2** y fue migrada exitosamente a **MySQL en Aiven Cloud** (con cifrado SSL obligatorio), asegurando alta disponibilidad y persistencia real de todos los usuarios registrados desde esta interfaz.
 
-### 2. API Geográfica Pública Externa
-- **Endpoint Base**: `https://countriesnow.space/api/v0.1/countries`
-- Utilizada en `ubicacionService.js` para cargar dinámicamente:
-  - Lista de países (`/iso`).
-  - Departamentos/estados asociados al país (`/states`).
-  - Ciudades vinculadas al departamento (`/state/cities`).
+**Endpoints consumidos:**
+* `GET /marca`: Obtiene el listado de marcas comerciales activas.
+* `GET /tipo-documento`: Obtiene el catálogo de documentos válidos (CC, CE, TI, etc.).
+* `POST /usuario`: Envía el payload completo para registrar al cliente y disparar el correo de bienvenida.
+* `GET /ubicacion` y `POST /ubicacion`: Consulta y guardado de direcciones.
+
+### 2. API Geográfica Externa
+* Utilizada en `ubicacionService.js` (`https://countriesnow.space/api/v0.1/countries`) para la carga de países, departamentos y ciudades dinámicas.
 
 ---
 
 ## ⚙️ Variables de Entorno
 
-El proyecto requiere un archivo `.env` en la raíz con las siguientes claves:
+Crea un archivo `.env` en la raíz de `registromarca/`:
 
 ```env
-# URL base de la API Backend (Spring Boot, Node.js, etc.)
+# URL base de la API Backend en Spring Boot
 VITE_API_URL_Revueta_Back=http://localhost:8080/
 
-# Tiempo máximo de espera para peticiones HTTP (en milisegundos)
+# Tiempo de espera límite para peticiones HTTP (en milisegundos)
 VITE_TIMEOUT_PETICION=10000
 ```
 
 ---
 
-## 🛠️ Instalación y Ejecución
+## 🛠️ Instalación y Ejecución Local
 
 ### Prerrequisitos
-- [Node.js](https://nodejs.org/) (versión 18.x o superior)
-- Gestor de paquetes `npm` (o `yarn` / `pnpm`)
+* **Node.js** (versión 18 o superior)
+* **npm** (o gestor de paquetes de tu preferencia)
+* El backend **Registro_Marca** corriendo en `http://localhost:8080` ([Ver instrucciones](../Registro_Marca/README.md))
 
-### Instrucciones
+### Pasos:
 
-1. **Instalar dependencias del proyecto:**
+1. **Ingresar a la carpeta del frontend:**
+   ```bash
+   cd registromarca
+   ```
+
+2. **Instalar las dependencias:**
    ```bash
    npm install
    ```
 
-2. **Ejecutar el servidor en entorno de desarrollo:**
+3. **Ejecutar en modo desarrollo:**
    ```bash
    npm run dev
    ```
-   Abre tu navegador en `http://localhost:5173` (o el puerto indicado en la terminal).
+   Abre tu navegador en: 👉 **`http://localhost:5173`**
 
-3. **Construir para producción:**
+4. **Compilar para producción:**
    ```bash
    npm run build
    ```
-   Genera la distribución lista para producción en la carpeta `dist/`.
 
-4. **Visualizar la versión construida (preview):**
-   ```bash
-   npm run preview
-   ```
-
-5. **Verificar el código con Oxlint:**
+5. **Auditar código con Oxlint:**
    ```bash
    npm run lint
    ```
@@ -177,15 +209,27 @@ VITE_TIMEOUT_PETICION=10000
 
 ## 👥 Marcas Aliadas Oficiales
 
-- 🦅 **American Eagle**
-- 👖 **Americanino**
-- 🧥 **Chevignon**
-- 👗 **Esprit**
-- 🌸 **NAF NAF**
-- 🎯 **Rifle**
+* 🦅 **American Eagle**
+* 👖 **Americanino**
+* 🧥 **Chevignon**
+* 👗 **Esprit**
+* 🌸 **NAF NAF**
+* 🎯 **Rifle**
 
 ---
 
-## 📄 Licencia y Entrega
+## 👨‍💻 Autor
 
-Proyecto desarrollado como parte de la solución de entrega del programa de fidelización y registro multimarca. Distribuido para fines académicos y de evaluación técnica.
+Este proyecto fue diseñado, desarrollado e implementado por:
+
+**Juan David Zapata Barrera**  
+*Desarrollador de Software*  
+GitHub: [@JuanZB360](https://github.com/JuanZB360)
+
+---
+
+<div align="center">
+
+Club de Fidelización © 2026 - Todos los derechos reservados.
+
+</div>
