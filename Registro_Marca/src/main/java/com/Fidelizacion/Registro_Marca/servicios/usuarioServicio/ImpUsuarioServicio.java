@@ -240,13 +240,6 @@ public class ImpUsuarioServicio implements IUsuarioServicio {
 				        </p>
 				      </div>
 
-				      <!-- Botón de Acción -->
-				      <div style="text-align: center;">
-				        <a href="http://localhost:5173" target="_blank" style="background-color: #18181b; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 10px; font-size: 14px; font-weight: 600; display: inline-block;">
-				          Ingresar a mi Cuenta
-				        </a>
-				      </div>
-
 				    </div>
 
 				    <!-- Separador -->
